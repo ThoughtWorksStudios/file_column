@@ -4,6 +4,7 @@ require 'rubygems'
 require 'active_support'
 require 'active_record'
 require 'action_view'
+require 'action_controller'
 require File.dirname(__FILE__) + '/connection'
 require 'stringio'
 
@@ -13,6 +14,7 @@ RAILS_ENV = ""
 $: << "../lib"
 
 require 'file_column'
+require 'file_column_helper'
 require 'file_compat'
 require 'validations'
 require 'test_case'
