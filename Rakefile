@@ -29,6 +29,7 @@ task :package => [:checkout_release, :release_docs] do
 end
 
 task :test do
+  sh "cd test; ruby attachement_store_test.rb"
   sh "cd test; ruby file_column_test.rb"
   sh "cd test; ruby file_column_helper_test.rb"
   sh "cd test; ruby magick_test.rb"

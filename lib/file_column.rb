@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'tempfile'
 require 'magick_file_column'
+require 'file_column/attachement_store'
 
 module FileColumn # :nodoc:
   def self.append_features(base)
@@ -15,6 +16,14 @@ module FileColumn # :nodoc:
     else
       PermanentUploadedFile.new(instance,attr)
     end
+  end
+
+  def self.store(dir)
+    (@store_builder || AttachementStore::Builder.new(:filesystem)).build(dir)
+  end
+
+  def self.store=(args)
+    @store_builder = AttachementStore::Builder.new(*args)
   end
 
   def self.init_options(defaults, model, attr)
@@ -346,6 +355,7 @@ module FileColumn # :nodoc:
   class PermanentUploadedFile < RealUploadedFile # :nodoc:
     def initialize(*args)
       super *args
+      @store = FileColumn.store(File.join(store_dir, relative_path_prefix))
       @dir = File.join(store_dir, relative_path_prefix)
       @filename = @instance[@attr]
       @filename = nil if @filename.empty?
@@ -353,14 +363,7 @@ module FileColumn # :nodoc:
     end
 
     def move_from(local_dir, just_uploaded)
-      # remove old permament dir first
-      # this creates a short moment, where neither the old nor
-      # the new files exist but we can't do much about this as
-      # filesystems aren't transactional.
-      FileUtils.rm_rf @dir
-
-      FileUtils.mv local_dir, @dir
-
+      @store.upload_dir(local_dir)
       @just_uploaded = just_uploaded
     end
 
@@ -390,7 +393,7 @@ module FileColumn # :nodoc:
     end
 
     def delete_files
-      FileUtils.rm_rf @dir
+      @store.clear
     end
 
     private
