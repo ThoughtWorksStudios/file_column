@@ -14,6 +14,10 @@ module FileColumn
         FileUtils.mv local_dir, @dir
       end
 
+      def exists?(file_path)
+        File.exists?(File.join(@dir, file_path))
+      end
+
       def clear
         FileUtils.rm_rf @dir
       end
