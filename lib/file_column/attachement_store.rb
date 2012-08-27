@@ -11,6 +11,7 @@ module FileColumn
         # the new files exist but we can't do much about this as
         # filesystems aren't transactional.
         FileUtils.rm_rf @dir
+        FileUtils.mkdir_p File.dirname(@dir)
         FileUtils.mv local_dir, @dir
       end
 
