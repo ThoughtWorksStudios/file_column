@@ -3,20 +3,28 @@ module FileColumn
     class FilesystemStore
       def initialize(dir)
         @dir = dir
+        FileUtils.mkdir_p @dir
       end
 
-      def upload_dir(local_dir)
-        # remove old permament dir first
-        # this creates a short moment, where neither the old nor
-        # the new files exist but we can't do much about this as
-        # filesystems aren't transactional.
-        FileUtils.rm_rf @dir
-        FileUtils.mkdir_p File.dirname(@dir)
-        FileUtils.mv local_dir, @dir
+      def upload(path, local_file)
+        FileUtils.mkdir_p(absolute_path(path))
+        FileUtils.mv(local_file, absolute_path(path))
+      end
+
+      def upload_dir(path, local_dir)
+        FileUtils.rm_rf(absolute_path(path))
+        Dir[File.join(local_dir, "*")].each do |f|
+          upload(path, f)
+        end
+      end
+
+      #todo: this should be interface that retrive a lazy file object
+      def absolute_path(*relative_paths)
+        File.join(@dir, *relative_paths)
       end
 
       def exists?(file_path)
-        File.exists?(File.join(@dir, file_path))
+        File.exists?(absolute_path(file_path))
       end
 
       def clear

@@ -355,15 +355,22 @@ module FileColumn # :nodoc:
   class PermanentUploadedFile < RealUploadedFile # :nodoc:
     def initialize(*args)
       super *args
-      @store = FileColumn.store(File.join(store_dir, relative_path_prefix))
-      @dir = File.join(store_dir, relative_path_prefix)
+      @store = FileColumn.store(store_dir)
       @filename = @instance[@attr]
       @filename = nil if @filename.empty?
-			FileUtils.mkpath(File.dirname(@dir)) unless File.exists?(File.dirname(@dir))
+    end
+
+    def absolute_path(subdir=nil)
+      if subdir
+        @store.absolute_path(File.join(relative_path_prefix, subdir, @filename))
+      else
+        @store.absolute_path(File.join(relative_path_prefix, @filename))
+      end
     end
 
     def move_from(local_dir, just_uploaded)
-      @store.upload_dir(local_dir)
+      @store.upload_dir(relative_path_prefix, local_dir)
+
       @just_uploaded = just_uploaded
     end
 
