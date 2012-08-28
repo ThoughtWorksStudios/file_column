@@ -16,7 +16,7 @@ class AttachementStoreTest < Test::Unit::TestCase
   end
 
   def test_upload_local_file_to_store
-    file =  "/tmp/file_column_test/abc"
+    file =  "/tmp/file_column_test_#{name}/abc"
     FileUtils.mkdir_p(File.dirname(file))
     FileUtils.touch(file)
     store = FileColumn.store(STORE_DIR)
@@ -24,6 +24,23 @@ class AttachementStoreTest < Test::Unit::TestCase
     store.upload("x/y/z", file)
     assert !store.exists?("x/abc")
     assert store.exists?("x/y/z/abc")
+    assert_equal "", store.read("x/y/z/abc")
+  end
+
+  def test_upload_with_same_name_replace_file
+    file =  "/tmp/file_column_test_#{name}/abc"
+    FileUtils.mkdir_p(File.dirname(file))
+    File.open(file, "w+") { |f| f << "123" }
+
+    store = FileColumn.store(STORE_DIR)
+    store.upload("x/y/z", file)
+
+    assert_equal "123", store.read("x/y/z/abc")
+
+    File.open(file, "w+") { |f| f << "456" }
+    store.upload("x/y/z", file)
+
+    assert_equal "456", store.read("x/y/z/abc")
   end
 
 
@@ -55,10 +72,7 @@ class AttachementStoreTest < Test::Unit::TestCase
     store = FileColumn.store(STORE_DIR)
     store.upload_dir("x/y/z", local_dir)
 
-
     assert store.exists?("x/y/z/b")
     assert !store.exists?("x/y/z/a")
   end
-
-
 end

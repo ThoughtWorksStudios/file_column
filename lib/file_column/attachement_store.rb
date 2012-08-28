@@ -6,6 +6,10 @@ module FileColumn
         FileUtils.mkdir_p @dir
       end
 
+      def read(path)
+        File.read(absolute_path(path))
+      end
+
       def upload(path, local_file)
         FileUtils.mkdir_p(absolute_path(path))
         FileUtils.mv(local_file, absolute_path(path))
