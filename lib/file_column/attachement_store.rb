@@ -1,26 +1,39 @@
 module FileColumn
   module AttachementStore
-    class S3Store
-      def initialize(options)
-        @api_key_id = options[:access_key_id]
-        @api_access_key = options[:secret_access_key]
-        @bucket_name = options[:bucket_name]
-      end
+    begin
+      require 'aws-sdk'
+      class S3Store
+        def initialize(options)
+          s3 = AWS::S3.new(:access_key_id => options[:access_key_id],
+                           :secret_access_key => options[:secret_access_key])
+          @bucket = s3.buckets[options[:bucket_name]]
+        end
 
-      def upload(path, local_file)
-      end
+        def upload(path, local_file)
+          @bucket.objects.create('/' + path + "/" + File.basename(local_file), File.read(local_file))
+        end
 
-      def upload_dir(path, local_dir)
-      end
+        def upload_dir(path, local_dir)
+          @bucket.objects.with_prefix("/" + path).delete_all
+          Dir[File.join(local_dir, "*")].each do |f|
+            upload(path, f)
+          end
+        end
 
-      def read(path)
-      end
+        def read(path)
+          @bucket.objects["/" + path ].read
+        end
 
-      def exists?(file_path)
-      end
+        def exists?(path)
+          @bucket.objects['/' + path].exists?
+        end
 
-      def clear
+        def clear
+          @bucket.clear!
+        end
       end
+    rescue LoadError => e
+      puts "Warning: can not load aws-sdk gem, s3 file store disabled"
     end
 
     class FilesystemStore

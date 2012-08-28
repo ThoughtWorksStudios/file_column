@@ -18,7 +18,6 @@ class AttachementStoreTest < Test::Unit::TestCase
     FileUtils.rm_rf("/tmp/file_column_test")
   end
 
-
   def self.store_test(test_name, store_type, *store_building_args, &block)
     define_method(test_name + "_for_#{store_type}_store") do
       FileColumn.store = store_type, *store_building_args
