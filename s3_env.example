@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export S3_ACCESS_KEY_ID=<key-id>
+export S3_SECRET_ACCESS_KEY=<access-key>
+export S3_BUCKET_NAME=file-column-attachement-test

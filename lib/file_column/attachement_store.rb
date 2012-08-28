@@ -13,6 +13,9 @@ module FileColumn
       def upload_dir(path, local_dir)
       end
 
+      def read(path)
+      end
+
       def exists?(file_path)
       end
 
