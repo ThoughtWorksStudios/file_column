@@ -25,7 +25,6 @@ class AttachementStoreTest < Test::Unit::TestCase
     end
   end
 
-
   STORE_BUILD_OPTS.each do |store_type, *rest_args|
     store_test "test_build_right_store", store_type, *rest_args do
       assert  FileColumn.store("/tmp/attachements").class.name.include?(ActiveSupport::Inflector.camelize(store_type))
@@ -91,6 +90,21 @@ class AttachementStoreTest < Test::Unit::TestCase
       assert store.exists?("x/y/z/b")
       assert !store.exists?("x/y/z/a")
     end
+  end
 
+
+  if STORE_BUILD_OPTS[1]
+    def test_generate_signed_url_for_s3_store
+      FileColumn.store = *STORE_BUILD_OPTS[1] #s3
+      local_dir = "/tmp/file_column_test"
+      FileUtils.mkdir_p(local_dir)
+      FileUtils.touch(File.join(local_dir, "a.jpg"))
+
+      store = FileColumn.store(STORE_DIR)
+      store.upload_dir("x/y/z", local_dir)
+      assert store.url_for("x/y/z/a.jpg").path.include?("/x/y/z/a.jpg")
+      assert store.url_for("x/y/z/a.jpg").query.include?("Signature")
+      assert store.url_for("x/y/z/a.jpg").query.include?("Expires")
+    end
   end
 end

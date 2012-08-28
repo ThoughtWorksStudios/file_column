@@ -6,34 +6,49 @@ module FileColumn
         def initialize(options)
           s3 = AWS::S3.new(:access_key_id => options[:access_key_id],
                            :secret_access_key => options[:secret_access_key])
+
+          @url_expires = options[:url_expires] || 30 * 60 # default expire is half hour
           @bucket = s3.buckets[options[:bucket_name]]
         end
 
         def upload(path, local_file)
-          @bucket.objects.create('/' + path + "/" + File.basename(local_file), File.read(local_file))
+          @bucket.objects.create(s3_path(path, File.basename(local_file)), File.read(local_file))
         end
 
         def upload_dir(path, local_dir)
-          @bucket.objects.with_prefix("/" + path).delete_all
+          @bucket.objects.with_prefix(s3_path(path)).delete_all
           Dir[File.join(local_dir, "*")].each do |f|
             upload(path, f)
           end
         end
 
         def read(path)
-          @bucket.objects["/" + path ].read
+          object(path).read
         end
 
         def exists?(path)
-          @bucket.objects['/' + path].exists?
+          object(path).exists?
+        end
+
+        def url_for(path)
+          object(path).url_for(:read, :expires => @url_expires)
         end
 
         def clear
           @bucket.clear!
         end
+
+        private
+        def object(path)
+          @bucket.objects[s3_path(path)]
+        end
+
+        def s3_path(*paths)
+          '/' + paths.join('/')
+        end
       end
     rescue LoadError => e
-      puts "Warning: can not load aws-sdk gem, s3 file store disabled"
+      puts "Warning: can not load aws-sdk gem, s3 file store will be disabled"
     end
 
     class FilesystemStore
