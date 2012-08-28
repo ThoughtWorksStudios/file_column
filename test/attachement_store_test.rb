@@ -16,10 +16,6 @@ class AttachementStoreTest < Test::Unit::TestCase
     FileUtils.rm_rf("/tmp/file_column_test")
   end
 
-  def test_use_builder_to_build_attachement_store
-    FileColumn.store = :filesystem
-    assert_equal FileColumn::AttachementStore::FilesystemStore, FileColumn.store("/tmp/attachements").class
-  end
 
   def self.store_test(test_name, store_type, *store_building_args, &block)
     define_method(test_name + "_for_#{store_type}_store") do
@@ -32,6 +28,10 @@ class AttachementStoreTest < Test::Unit::TestCase
 
 
   STORE_BUILD_OPTS.each do |store_type, *rest_args|
+    store_test "test_build_right_store", store_type, *rest_args do |assertion|
+      assertion.assert  FileColumn.store("/tmp/attachements").class.name.include?(ActiveSupport::Inflector.camelize(store_type))
+    end
+
     store_test "test_upload_local_file", store_type, *rest_args do |assertion|
       file =  "/tmp/file_column_test/abc"
       FileUtils.mkdir_p(File.dirname(file))

@@ -64,7 +64,6 @@ module FileColumn
       def build(dir=nil)
         args = @build_opts
         args += [dir] if @type == :filesystem
-
         store_class.new(*args)
       end
 
