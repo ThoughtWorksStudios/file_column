@@ -1,5 +1,25 @@
 module FileColumn
   module AttachementStore
+    class S3Store
+      def initialize(options)
+        @api_key_id = options[:access_key_id]
+        @api_access_key = options[:secret_access_key]
+        @bucket_name = options[:bucket_name]
+      end
+
+      def upload(path, local_file)
+      end
+
+      def upload_dir(path, local_dir)
+      end
+
+      def exists?(file_path)
+      end
+
+      def clear
+      end
+    end
+
     class FilesystemStore
       def initialize(dir)
         @dir = dir
@@ -41,11 +61,11 @@ module FileColumn
         @type, *@build_opts = *build_opts
       end
 
-      # build the real storage
-      # e.g Builder.new(:filesystem).build("/var/attachements")
-      # oor  Builder.new(:filesystem, "/var/attachements").build
-      def build(dir)
-        store_class.new(*(@build_opts + [dir]))
+      def build(dir=nil)
+        args = @build_opts
+        args += [dir] if @type == :filesystem
+
+        store_class.new(*args)
       end
 
       private

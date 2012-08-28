@@ -18,6 +18,7 @@ module FileColumn # :nodoc:
     end
   end
 
+  #todo: dir is not required for all type of store
   def self.store(dir)
     (@store_builder || AttachementStore::Builder.new(:filesystem)).build(dir)
   end
