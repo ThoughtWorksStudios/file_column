@@ -1,3 +1,11 @@
+PATH
+  remote: .
+  specs:
+    file_column (0.1.0)
+      rails (= 2.3.8)
+      rmagick
+      sqlite3
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -27,6 +35,4 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  rails (= 2.3.8)
-  rmagick
-  sqlite3
+  file_column!
