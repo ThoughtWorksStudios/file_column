@@ -642,12 +642,12 @@ module FileColumn # :nodoc:
         result
       end
 
+      private state_method
+
       define_method "file_column_relative_path_prefix" do
         raise RuntimeError.new("Trying to access file_column, but primary key got lost.") if self.id.to_s.empty?
-        File.join(*("%08d" % self.id).scan(/..../))
+        options[:use_safe_path] ? File.join(*("%08d" % self.id).scan(/..../)) : self.id.to_s
       end
-
-      private state_method
 
       define_method attr do |*args|
         send(state_method).absolute_path *args
