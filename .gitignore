@@ -1,3 +1,4 @@
 /TAGS
 /test/debug.log
 test/*.sqlite
+pkg/
