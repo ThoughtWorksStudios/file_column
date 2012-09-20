@@ -3,7 +3,6 @@ PATH
   specs:
     file_column (0.1.0)
       rails (= 2.3.8)
-      rmagick
       sqlite3
 
 GEM
@@ -36,3 +35,4 @@ PLATFORMS
 
 DEPENDENCIES
   file_column!
+  rmagick
