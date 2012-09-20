@@ -3,12 +3,6 @@ begin
   require File.dirname(__FILE__) + '/abstract_unit'
   require File.dirname(__FILE__) + '/fixtures/entry'
 
-  class Entry < ActiveRecord::Base
-    def load_image_with_rmagick(path)
-      Magick::Image::read(path).first
-    end
-  end
-  
   class AbstractRMagickTest < Test::Unit::TestCase
     def teardown
       FileUtils.rm_rf File.dirname(__FILE__)+"/public/entry/"
@@ -89,9 +83,8 @@ begin
     end
 
     def test_imagemagick_still_usable
-      e = Entry.new
       assert_nothing_raised {
-        img = e.load_image_with_rmagick(file_path("skanthak.png"))
+        img = Magick::Image::read(file_path("skanthak.png")).first
         assert img.kind_of?(Magick::Image)
       }
     end

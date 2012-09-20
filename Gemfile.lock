@@ -1,9 +1,8 @@
 PATH
   remote: .
   specs:
-    file_column_with_s3 (0.1.0)
+    file_column_with_s3 (0.1.1)
       rails (= 2.3.8)
-      sqlite3
 
 GEM
   remote: http://rubygems.org/
@@ -36,3 +35,4 @@ PLATFORMS
 DEPENDENCIES
   file_column_with_s3!
   rmagick
+  sqlite3
