@@ -1,5 +1,3 @@
-require 'rake/gempackagetask'
-
 Gem::Specification.new do |gem|
   gem.name = "file_column"
   gem.version = "0.1.0"
