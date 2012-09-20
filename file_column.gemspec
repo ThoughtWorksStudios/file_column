@@ -1,5 +1,5 @@
 Gem::Specification.new do |gem|
-  gem.name = "file_column"
+  gem.name = "file_column_with_s3"
   gem.version = "0.1.0"
   
   gem.authors = ["Mingle SaaS team"]
