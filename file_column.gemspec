@@ -12,5 +12,5 @@ Gem::Specification.new do |gem|
   gem.homepage = %q{https://github.com/ThoughtWorksStudios/file_column}
   gem.require_paths = ["lib"]
   gem.summary = "File attachment library for ruby"
-  gem.files = FileList["{lib,test}/**/*"].exclude("rdoc").to_a + ["Rakefile", "README", "CHANGELOG", "s3_env.example"]
+  gem.files = Dir['Rakefile', '{lib,test}/**/*', 'README', 'CHANGELOG', 's3_env.example'] & `git ls-files -z`.split("\0")
 end
