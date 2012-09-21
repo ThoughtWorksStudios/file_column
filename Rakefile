@@ -1,3 +1,6 @@
+require 'bundler'  
+Bundler::GemHelper.install_tasks
+
 task :default => [:test]
 
 PKG_NAME = "file-column"
@@ -28,6 +31,7 @@ task :package => [:checkout_release, :release_docs] do
   sh "cd release; tar czf #{PKG_NAME}-#{PKG_VERSION}.tar.gz #{PKG_NAME}-#{PKG_VERSION}"
 end
 
+desc "Run all tests"
 task :test do
   sh "cd test; ruby attachement_store_test.rb"
   sh "cd test; ruby file_column_test.rb"

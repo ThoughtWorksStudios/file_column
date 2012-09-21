@@ -1,4 +1,4 @@
-require 'fileutils'
+  require 'fileutils'
 require 'tempfile'
 require 'magick_file_column'
 require 'file_column/attachement_store'
@@ -226,7 +226,7 @@ module FileColumn # :nodoc:
     def store_upload(file)
       @tmp_dir = FileColumn.generate_temp_name
       @dir = File.join(tmp_base_dir, @tmp_dir)
-      FileUtils.mkdir(@dir)
+      FileUtils.mkdir_p(@dir)
 
       @filename = FileColumn::sanitize_filename(file.original_filename)
       local_file_path = File.join(tmp_base_dir,@tmp_dir,@filename)
@@ -646,12 +646,12 @@ module FileColumn # :nodoc:
         result
       end
 
+      private state_method
+
       define_method "file_column_relative_path_prefix" do
         raise RuntimeError.new("Trying to access file_column, but primary key got lost.") if self.id.to_s.empty?
-        File.join(*("%08d" % self.id).scan(/..../))
+        options[:use_safe_path] ? File.join(*("%08d" % self.id).scan(/..../)) : self.id.to_s
       end
-
-      private state_method
 
       define_method attr do |*args|
         send(state_method).absolute_path *args

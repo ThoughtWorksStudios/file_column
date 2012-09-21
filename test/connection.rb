@@ -1,15 +1,11 @@
-print "Using native MySQL\n"
 require 'logger'
 
 ActiveRecord::Base.logger = Logger.new("debug.log")
 
-db = 'file_column_test'
+db = 'file_column_test.sqlite'
 
-ActiveRecord::Base.establish_connection(:adapter  => "mysql",
-                                        :host     => "localhost",
-                                        :username => "root",
-                                        :password => "",
-                                        :database => db,
-                                        :socket => "/var/run/mysqld/mysqld.sock" )
+ActiveRecord::Base.establish_connection(:adapter  => "sqlite3",
+                                        :database => db)
+
 
 load File.dirname(__FILE__) + "/fixtures/schema.rb"
