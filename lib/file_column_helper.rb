@@ -3,7 +3,7 @@
 # automatically included into ActionView::Base, thereby making this module's
 # methods available in all your views.
 module FileColumnHelper
-  
+
   # Use this helper to create an upload field for a file_column attribute. This will generate
   # an additional hidden field to keep uploaded files during form-redisplays. For example,
   # when called with
@@ -26,7 +26,7 @@ module FileColumnHelper
     result = ActionView::Helpers::InstanceTag.new(object.dup, method.to_s+"_temp", self).to_input_field_tag("hidden", {})
     result << ActionView::Helpers::InstanceTag.new(object.dup, method, self).to_input_field_tag("file", options)
   end
-  
+
   # Creates an URL where an uploaded file can be accessed. When called for an Entry object with
   # id 42 (stored in <tt>@entry</tt>) like this
   #
@@ -71,9 +71,13 @@ module FileColumnHelper
         subdir = options
       end
     end
-    
+
     relative_path = object.send("#{method}_relative_path", subdir)
     return nil unless relative_path
+
+
+    store = object.send("#{method}_attachement_store")
+    return store.url_for(relative_path) if store && store.respond_to?(:url_for)
 
     url = ""
     url << ActionController::Base.relative_url_root.to_s if absolute
@@ -115,7 +119,7 @@ module FileColumnHelper
   #
   # and
   #
-  #    <%= url_for_image_column @entry, "image", 
+  #    <%= url_for_image_column @entry, "image",
   #       :size => "50x50", :crop => "1:1", :name => "thumb" %>
   #
   # will produce something like this:

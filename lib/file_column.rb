@@ -19,7 +19,7 @@ module FileColumn # :nodoc:
   end
 
   #todo: dir is not required for all type of store
-  def self.store(dir)
+  def self.store(dir=nil)
     (@store_builder || AttachementStore::Builder.new(:filesystem)).build(dir)
   end
 
@@ -51,6 +51,9 @@ module FileColumn # :nodoc:
       @options_method = "#{attr}_options".to_sym
     end
 
+    def store
+      nil
+    end
 
     def assign(file)
       if file.is_a? File
@@ -356,22 +359,24 @@ module FileColumn # :nodoc:
   class PermanentUploadedFile < RealUploadedFile # :nodoc:
     def initialize(*args)
       super *args
-      @store = FileColumn.store(store_dir)
       @filename = @instance[@attr]
       @filename = nil if @filename.empty?
     end
 
+    def store
+      FileColumn.store(store_dir)
+    end
+
     def absolute_path(subdir=nil)
       if subdir
-        @store.absolute_path(File.join(relative_path_prefix, subdir, @filename))
+        store.absolute_path(File.join(relative_path_prefix, subdir, @filename))
       else
-        @store.absolute_path(File.join(relative_path_prefix, @filename))
+        store.absolute_path(File.join(relative_path_prefix, @filename))
       end
     end
 
     def move_from(local_dir, just_uploaded)
-      @store.upload_dir(relative_path_prefix, local_dir)
-
+      store.upload_dir(relative_path_prefix, local_dir)
       @just_uploaded = just_uploaded
     end
 
@@ -390,7 +395,6 @@ module FileColumn # :nodoc:
 
     def assign_temp(temp_path)
       return nil if temp_path.nil? or temp_path.empty?
-
       temp = clone_as TempUploadedFile
       temp.parse_temp_path(temp_path)
       temp
@@ -401,7 +405,7 @@ module FileColumn # :nodoc:
     end
 
     def delete_files
-      @store.clear
+      store.clear
     end
 
     private
@@ -700,6 +704,10 @@ module FileColumn # :nodoc:
 
       define_method "#{attr}_just_uploaded?" do
         send(state_method).just_uploaded?
+      end
+
+      define_method "#{attr}_attachement_store" do
+        send(state_method).store
       end
 
       # this creates a closure keeping a reference to my_options
