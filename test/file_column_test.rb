@@ -43,8 +43,8 @@ class FileColumnTest < Test::Unit::TestCase
 
   def test_default_options
     e = Entry.new
-    assert_match %r{/public/entry/image}, e.image_options[:store_dir]
-    assert_match %r{/public/entry/image/tmp}, e.image_options[:tmp_base_dir]
+    assert_match %r{entry/image}, e.image_options[:store_dir]
+    assert_match %r{entry/image/tmp}, e.image_options[:tmp_base_dir]
   end
 
   def test_assign_without_save_with_tempfile

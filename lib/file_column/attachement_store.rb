@@ -2,13 +2,14 @@ module FileColumn
   module AttachementStore
     begin
       require 'aws-sdk'
+
       class S3Store
         HALF_AN_HOUR = 30 * 60
 
-        def initialize(options)
+        def initialize(path_prefix, options)
           s3 = AWS::S3.new(:access_key_id => options[:access_key_id],
                            :secret_access_key => options[:secret_access_key])
-
+          @path_prefix = path_prefix
           @url_expires = options[:url_expires] || HALF_AN_HOUR
           @bucket = s3.buckets[options[:bucket_name]]
         end
@@ -46,7 +47,7 @@ module FileColumn
         end
 
         def s3_path(*paths)
-          '/' + paths.join('/')
+          File.join(@path_prefix, *paths)
         end
       end
     rescue LoadError => e
@@ -54,9 +55,10 @@ module FileColumn
     end
 
     class FilesystemStore
-      def initialize(dir)
-        @dir = dir
-        FileUtils.mkdir_p @dir
+      def initialize(path_prefix, options={})
+        @dir = options[:root_path] || raise('Must define root path for file system store')
+        @path_prefix = path_prefix
+        FileUtils.mkdir_p File.join(@dir, @path_prefix)
       end
 
       def read(path)
@@ -77,7 +79,7 @@ module FileColumn
 
       #todo: this should be interface that retrive a lazy file object
       def absolute_path(*relative_paths)
-        File.join(@dir, *relative_paths)
+        File.join(@dir, @path_prefix, *relative_paths)
       end
 
       def exists?(file_path)
@@ -90,14 +92,12 @@ module FileColumn
     end
 
     class Builder
-      def initialize(*build_opts)
-        @type, *@build_opts = *build_opts
+      def initialize(type, build_opts={})
+        @type, @build_opts = type, build_opts
       end
 
-      def build(dir=nil)
-        args = @build_opts
-        args += [dir] if @type == :filesystem
-        store_class.new(*args)
+      def build(path_prefix, extra_opts={})
+        store_class.new(path_prefix, @build_opts.merge(extra_opts))
       end
 
       private

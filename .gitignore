@@ -3,3 +3,5 @@
 s3_env
 test/*.sqlite
 pkg/
+/test/entry
+/test/public

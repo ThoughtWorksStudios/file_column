@@ -4,11 +4,12 @@ require File.dirname(__FILE__) + '/fixtures/entry'
 module FileColumn
   module AttachementStore
     class InMemoryWithUrlStore
-      def initialize
+      def initialize(path_prefix, options)
+        @path_prefix = path_prefix
         @storage = {}
       end
       def upload(path, file)
-        @storage[path + "/" + File.basename(file)] = File.read(file)
+        @storage[absolute_path(path) + "/" + File.basename(file)] = File.read(file)
       end
 
       def upload_dir(path, local_dir)
@@ -23,6 +24,10 @@ module FileColumn
 
       def url_for(path)
         "store generated url for #{path}"
+      end
+
+      def absolute_path(path)
+        File.join(@path_prefix, path)
       end
 
       def clear
@@ -42,12 +47,12 @@ class UrlForFileColumnTest < Test::Unit::TestCase
   end
 
   def test_should_use_store_generated_url_if_file_store_configured_can_do_it
-    FileColumn.store = :in_memory_with_url
+    FileColumn.config_store(:in_memory_with_url)
     @e = Entry.new(:image => upload(f("skanthak.png")))
     assert @e.save
     assert_equal "store generated url for #{@e.image_relative_path}", url_for_file_column("e", "image")
   ensure
-    FileColumn.store = :filesystem
+    FileColumn.config_store(:filesystem)
   end
 
   def test_url_for_file_column_with_temp_entry
@@ -116,7 +121,7 @@ class UrlForFileColumnTest < Test::Unit::TestCase
   def test_with_image_tag
     e = Entry.new(:image => upload(f("skanthak.png")))
     html = image_tag url_for_file_column(e, "image")
-    url = html.scan(/src=\"(.+)\?.*\"/).first.first
+    url = html.scan(/src=\"(.+)\??.*\"/).first.first
 
     assert_match IMAGE_URL, url
   end

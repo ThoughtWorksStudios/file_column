@@ -18,18 +18,18 @@ module FileColumn # :nodoc:
     end
   end
 
-  #todo: dir is not required for all type of store
-  def self.store(dir=nil)
-    (@store_builder || AttachementStore::Builder.new(:filesystem)).build(dir)
+  def self.store(path_prefix, extra_opts={})
+    builder = @store_builder || AttachementStore::Builder.new(:filesystem)
+    builder.build(path_prefix, extra_opts)
   end
 
-  def self.store=(args)
-    @store_builder = AttachementStore::Builder.new(*args)
+  def self.config_store(type, build_opts={})
+    @store_builder = AttachementStore::Builder.new(type, build_opts)
   end
 
   def self.init_options(defaults, model, attr)
     options = defaults.dup
-    options[:store_dir] ||= File.join(options[:root_path], model, attr)
+    options[:store_dir] ||= File.join(model, attr)
     unless options[:store_dir].is_a?(Symbol)
       options[:tmp_base_dir] ||= File.join(options[:store_dir], "tmp")
     end
@@ -125,10 +125,7 @@ module FileColumn # :nodoc:
     def store_dir
       if options[:store_dir].is_a? Symbol
         raise ArgumentError.new("'#{options[:store_dir]}' is not an instance method of class #{@instance.class.name}") unless @instance.respond_to?(options[:store_dir])
-
-        dir = File.join(options[:root_path], @instance.send(options[:store_dir]))
-        FileUtils.mkpath(dir) unless File.exists?(dir)
-        dir
+        @instance.send(options[:store_dir])
       else
         options[:store_dir]
       end
@@ -138,7 +135,7 @@ module FileColumn # :nodoc:
       if options[:tmp_base_dir]
         options[:tmp_base_dir]
       else
-        dir = File.join(store_dir, "tmp")
+        dir = File.join(options[:root_path], store_dir, "tmp")
         FileUtils.mkpath(dir) unless File.exists?(dir)
         dir
       end
@@ -226,6 +223,7 @@ module FileColumn # :nodoc:
     def store_upload(file)
       @tmp_dir = FileColumn.generate_temp_name
       @dir = File.join(tmp_base_dir, @tmp_dir)
+
       FileUtils.mkdir_p(@dir)
 
       @filename = FileColumn::sanitize_filename(file.original_filename)
@@ -364,7 +362,7 @@ module FileColumn # :nodoc:
     end
 
     def store
-      FileColumn.store(store_dir)
+      FileColumn.store(store_dir, {:root_path => options[:root_path] }) #root_path is only need for file system store, but pass it in will not hurt for other store
     end
 
     def absolute_path(subdir=nil)
@@ -545,7 +543,7 @@ module FileColumn # :nodoc:
   #
   # For setting a static storage_dir that doesn't change with respect to a particular
   # instance, you assign <tt>:storage_dir</tt> a String representing a directory
-  # as an absolute path.
+  # as a relative path under root_path.
   #
   # If you need more fine-grained control over the storage directory, you
   # can use the name of a callback-method as a symbol for the

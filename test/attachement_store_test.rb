@@ -4,8 +4,9 @@ require 'active_support/test_case'
 class AttachementStoreTest < Test::Unit::TestCase
   extend Test::Unit::Assertions
 
-  STORE_DIR = File.dirname(__FILE__)+"/public/entry"
-  STORE_BUILD_OPTS = [[:filesystem]]
+  ROOT_DIR = File.dirname(__FILE__)+"/public/entry"
+  STORE_BUILD_OPTS = [[:filesystem, {:root_path => ROOT_DIR } ]]
+
   if !ENV["S3_ACCESS_KEY_ID"].blank?
     STORE_BUILD_OPTS << [:s3, {
                            :access_key_id => ENV["S3_ACCESS_KEY_ID"],
@@ -14,39 +15,41 @@ class AttachementStoreTest < Test::Unit::TestCase
   end
 
   def teardown
-    FileColumn.store(STORE_DIR).clear
     FileUtils.rm_rf("/tmp/file_column_test")
   end
 
-  def self.store_test(test_name, store_type, *store_building_args, &block)
+  def self.store_test(test_name, store_type, build_opts, &block)
     define_method(test_name + "_for_#{store_type}_store") do
-      FileColumn.store = store_type, *store_building_args
-      yield
+      FileColumn.config_store(store_type, build_opts)
+      store = FileColumn.store("foo")
+      begin
+        yield(store)
+      ensure
+        store.clear
+      end
     end
   end
 
-  STORE_BUILD_OPTS.each do |store_type, *rest_args|
-    store_test "test_build_right_store", store_type, *rest_args do
-      assert  FileColumn.store("/tmp/attachements").class.name.include?(ActiveSupport::Inflector.camelize(store_type))
+  STORE_BUILD_OPTS.each do |store_type, build_opts|
+    store_test "test_build_right_store", store_type, build_opts do |store|
+      assert store.class.name.include?(ActiveSupport::Inflector.camelize(store_type))
     end
 
-    store_test "test_upload_local_file", store_type, *rest_args do
+    store_test "test_upload_local_file", store_type, build_opts do |store|
       file =  "/tmp/file_column_test/abc"
       FileUtils.mkdir_p(File.dirname(file))
       FileUtils.touch(file)
-      store = FileColumn.store(STORE_DIR)
       store.upload("x/y/z", file)
       assert !store.exists?("x/abc")
       assert store.exists?("x/y/z/abc")
       assert_equal "", store.read("x/y/z/abc")
     end
 
-    store_test "test_upload_with_same_name_replace_file", store_type, *rest_args do
+    store_test "test_upload_with_same_name_replace_file", store_type, build_opts do |store|
       file =  "/tmp/file_column_test/abc"
       FileUtils.mkdir_p(File.dirname(file))
       File.open(file, "w+") { |f| f << "123" }
 
-      store = FileColumn.store(STORE_DIR)
       store.upload("x/y/z", file)
 
       assert_equal "123", store.read("x/y/z/abc")
@@ -57,13 +60,12 @@ class AttachementStoreTest < Test::Unit::TestCase
       assert_equal "456", store.read("x/y/z/abc")
     end
 
-    store_test "test_upload_local_dir", store_type, *rest_args do
+    store_test "test_upload_local_dir", store_type, build_opts do |store|
       local_dir = "/tmp/file_column_test"
       FileUtils.mkdir_p(local_dir)
       FileUtils.touch(File.join(local_dir, "a"))
       FileUtils.touch(File.join(local_dir, "b"))
 
-      store = FileColumn.store(STORE_DIR)
       store.upload_dir("x/y/z", local_dir)
 
       assert store.exists?("x/y/z/a")
@@ -71,20 +73,19 @@ class AttachementStoreTest < Test::Unit::TestCase
     end
 
 
-    store_test "test_upload_local_dir_with_replace_files", store_type, *rest_args do
+    store_test "test_upload_local_dir_with_replace_files", store_type, build_opts do |store|
 
       local_dir = "/tmp/file_column_test/old"
       FileUtils.mkdir_p(local_dir)
       FileUtils.touch(File.join(local_dir, "a"))
 
-      store = FileColumn.store(STORE_DIR)
       store.upload_dir("x/y/z", local_dir)
 
       local_dir = "/tmp/file_column_test/new"
       FileUtils.mkdir_p(local_dir)
       FileUtils.touch(File.join(local_dir, "b"))
 
-      store = FileColumn.store(STORE_DIR)
+      store = FileColumn.store("foo")
       store.upload_dir("x/y/z", local_dir)
 
       assert store.exists?("x/y/z/b")
@@ -95,14 +96,14 @@ class AttachementStoreTest < Test::Unit::TestCase
 
   if STORE_BUILD_OPTS[1]
     def test_generate_signed_url_for_s3_store
-      FileColumn.store = *STORE_BUILD_OPTS[1] #s3
+      FileColumn.config_store(*STORE_BUILD_OPTS[1])
       local_dir = "/tmp/file_column_test"
       FileUtils.mkdir_p(local_dir)
       FileUtils.touch(File.join(local_dir, "a.jpg"))
 
-      store = FileColumn.store(STORE_DIR)
+      store = FileColumn.store("foo")
       store.upload_dir("x/y/z", local_dir)
-      assert store.url_for("x/y/z/a.jpg").path.include?("/x/y/z/a.jpg")
+      assert store.url_for("x/y/z/a.jpg").path.include?("/foo/x/y/z/a.jpg")
       assert store.url_for("x/y/z/a.jpg").query.include?("Signature")
       assert store.url_for("x/y/z/a.jpg").query.include?("Expires")
     end
