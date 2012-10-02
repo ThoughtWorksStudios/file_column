@@ -37,6 +37,11 @@ module FileColumn
           object(path).url_for(:read, :expires => @url_expires)
         end
 
+        #todo: this should be interface that retrive a lazy file object
+        def absolute_path(*relative_paths)
+          File.join("s3:#{@bucket.name}://", *relative_paths)
+        end
+
         def clear
           @bucket.clear!
         end
