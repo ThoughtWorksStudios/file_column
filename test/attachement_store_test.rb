@@ -103,9 +103,10 @@ class AttachementStoreTest < Test::Unit::TestCase
 
       store = FileColumn.store("foo")
       store.upload_dir("x/y/z", local_dir)
-      assert store.url_for("x/y/z/a.jpg").path.include?("/foo/x/y/z/a.jpg")
-      assert store.url_for("x/y/z/a.jpg").query.include?("Signature")
-      assert store.url_for("x/y/z/a.jpg").query.include?("Expires")
+      url = URI.parse(store.url_for("x/y/z/a.jpg"))
+      assert url.path.include?("/foo/x/y/z/a.jpg")
+      assert url.query.include?("Signature")
+      assert url.query.include?("Expires")
     end
   end
 end

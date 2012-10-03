@@ -34,7 +34,7 @@ module FileColumn
         end
 
         def url_for(path)
-          object(path).url_for(:read, :expires => @url_expires)
+          object(path).url_for(:read, :expires => @url_expires).to_s
         end
 
         #todo: this should be interface that retrive a lazy file object
