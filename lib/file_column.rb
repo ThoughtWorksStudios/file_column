@@ -704,15 +704,27 @@ module FileColumn # :nodoc:
         send(state_method).just_uploaded?
       end
 
-      define_method "#{attr}_attachement_store" do
-        send(state_method).store
-      end
 
       # this creates a closure keeping a reference to my_options
       # right now that's the only way we store the options. We
       # might use a class attribute as well
       define_method "#{attr}_options" do
         my_options
+      end
+
+      define_method "#{attr}_download_url" do |context_path, *args|
+        state = send(state_method)
+        relative_path = state.relative_path(*args)
+        return nil unless relative_path
+
+        store = state.store
+        return store.url_for(relative_path) if store && store.respond_to?(:url_for)
+
+        url = ""
+        url << context_path if context_path
+        url << "/"
+        url << state.options[:base_url] << "/"
+        url << relative_path
       end
 
       private after_save_method, after_destroy_method

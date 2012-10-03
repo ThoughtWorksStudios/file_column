@@ -72,18 +72,9 @@ module FileColumnHelper
       end
     end
 
-    relative_path = object.send("#{method}_relative_path", subdir)
-    return nil unless relative_path
+    context_path = absolute ? ActionController::Base.relative_url_root.to_s : nil
+    object.send("#{method}_download_url", context_path, subdir)
 
-
-    store = object.send("#{method}_attachement_store")
-    return store.url_for(relative_path) if store && store.respond_to?(:url_for)
-
-    url = ""
-    url << ActionController::Base.relative_url_root.to_s if absolute
-    url << "/"
-    url << object.send("#{method}_options")[:base_url] << "/"
-    url << relative_path
   end
 
   # Same as +url_for_file_colum+ but allows you to access different versions

@@ -1,48 +1,12 @@
 require File.dirname(__FILE__) + '/abstract_unit'
 require File.dirname(__FILE__) + '/fixtures/entry'
 
-module FileColumn
-  module AttachementStore
-    class InMemoryWithUrlStore
-      def initialize(path_prefix, options)
-        @path_prefix = path_prefix
-        @storage = {}
-      end
-      def upload(path, file)
-        @storage[absolute_path(path) + "/" + File.basename(file)] = File.read(file)
-      end
-
-      def upload_dir(path, local_dir)
-        Dir[File.join(local_dir, "*")].each do |f|
-          upload(path, f)
-        end
-      end
-
-      def exists?(path)
-        File.key?(path)
-      end
-
-      def url_for(path)
-        "store generated url for #{path}"
-      end
-
-      def absolute_path(path)
-        File.join(@path_prefix, path)
-      end
-
-      def clear
-        @storage = {}
-      end
-    end
-  end
-end
-
-
 class UrlForFileColumnTest < Test::Unit::TestCase
   include FileColumnHelper
 
   def setup
     Entry.file_column :image
+    ActionController::Base.relative_url_root = nil
     @request = RequestMock.new
   end
 
@@ -72,7 +36,6 @@ class UrlForFileColumnTest < Test::Unit::TestCase
   def test_url_for_file_column_works_with_symbol
     @e = Entry.new(:image => upload(f("skanthak.png")))
     assert @e.save
-
     url = url_for_file_column(:e, :image)
     assert_equal "/entry/image/#{@e.file_column_relative_path_prefix}/skanthak.png", url
   end
@@ -98,7 +61,7 @@ class UrlForFileColumnTest < Test::Unit::TestCase
   end
 end
 
-class UrlForFileColumnTest < Test::Unit::TestCase
+class UrlForFileColumnWithContextPathTest < Test::Unit::TestCase
   include FileColumnHelper
   include ActionView::Helpers::AssetTagHelper
   include ActionView::Helpers::TagHelper

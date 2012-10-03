@@ -650,3 +650,44 @@ class FileColumnMoveTest < Test::Unit::TestCase
   end
 
 end
+
+
+# Tests for moving temp dir to permanent dir
+class FileColumnDownloadUrlTest < Test::Unit::TestCase
+
+
+  def test_default_download_url_is_relative
+    Entry.file_column :image
+    e = Entry.new(:image => upload(f("skanthak.png")))
+    assert e.save
+
+    assert_equal "/entry/image/#{e.id}/skanthak.png", e.image_download_url(nil)
+  end
+
+  def test_download_url_with_specified_url_base
+    Entry.file_column :image, :base_url => 'foo'
+    e = Entry.new(:image => upload(f("skanthak.png")))
+    assert e.save
+
+    assert_equal "/foo/#{e.id}/skanthak.png", e.image_download_url(nil)
+  end
+
+  def test_download_url_with_specified_subdir
+    Entry.file_column :image
+    e = Entry.new(:image => upload(f("skanthak.png")))
+    assert e.save
+
+    assert_equal "/entry/image/#{e.id}/foo/skanthak.png", e.image_download_url(nil, 'foo')
+  end
+
+
+  def test_should_use_store_generated_url_if_storage_configured_can_do_it
+    FileColumn.config_store(:in_memory_with_url)
+    e = Entry.new(:image => upload(f("skanthak.png")))
+    assert e.save
+    assert_equal "store generated url for #{e.image_relative_path}", e.image_download_url(nil)
+  ensure
+    FileColumn.config_store(:filesystem)
+  end
+
+end
