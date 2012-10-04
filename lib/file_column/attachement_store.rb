@@ -43,7 +43,11 @@ module FileColumn
         end
 
         def clear
-          @bucket.clear!
+          if @path_prefix.blank?
+            @bucket.clear
+          else
+            @bucket.objects.with_prefix(@path_prefix).delete_all
+          end
         end
 
         private
@@ -92,7 +96,7 @@ module FileColumn
       end
 
       def clear
-        FileUtils.rm_rf @dir
+        FileUtils.rm_rf File.join(@dir, @path_prefix)
       end
     end
 

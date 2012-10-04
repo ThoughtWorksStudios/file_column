@@ -30,43 +30,58 @@ class AttachementStoreTest < Test::Unit::TestCase
     end
   end
 
+  def self.create_local_file(path, content="abc")
+    FileUtils.mkdir_p(File.dirname(path))
+
+    File.open(path, "w+") { |f| f << content }
+    path
+  end
+
+
   STORE_BUILD_OPTS.each do |store_type, build_opts|
     store_test "test_build_right_store", store_type, build_opts do |store|
       assert store.class.name.include?(ActiveSupport::Inflector.camelize(store_type))
     end
 
     store_test "test_upload_local_file", store_type, build_opts do |store|
-      file =  "/tmp/file_column_test/abc"
-      FileUtils.mkdir_p(File.dirname(file))
-      FileUtils.touch(file)
-      store.upload("x/y/z", file)
+      store.upload("x/y/z", create_local_file("/tmp/file_column_test/abc", "123"))
       assert !store.exists?("x/abc")
       assert store.exists?("x/y/z/abc")
-      assert_equal "", store.read("x/y/z/abc")
+      assert_equal "123", store.read("x/y/z/abc")
+    end
+
+    store_test "test_clear_store", store_type, build_opts do |store|
+      store_a = FileColumn.store('foo')
+      store_b = FileColumn.store('bar')
+      store_a.upload("x/y/z", create_local_file("/tmp/file_column_test/abc"))
+      store_b.upload("x/y/z", create_local_file("/tmp/file_column_test/abc"))
+
+      assert store_a.exists?("x/y/z/abc")
+      assert store_b.exists?("x/y/z/abc")
+
+      store_a.clear
+
+      assert !store_a.exists?("x/y/z/abc")
+      assert store_b.exists?("x/y/z/abc")
+
+      store_b.clear
+
+      assert !store_a.exists?("x/y/z/abc")
+      assert !store_b.exists?("x/y/z/abc")
     end
 
     store_test "test_upload_with_same_name_replace_file", store_type, build_opts do |store|
-      file =  "/tmp/file_column_test/abc"
-      FileUtils.mkdir_p(File.dirname(file))
-      File.open(file, "w+") { |f| f << "123" }
-
-      store.upload("x/y/z", file)
-
+      store.upload("x/y/z", create_local_file("/tmp/file_column_test/abc", "123"))
       assert_equal "123", store.read("x/y/z/abc")
 
-      File.open(file, "w+") { |f| f << "456" }
-      store.upload("x/y/z", file)
-
+      store.upload("x/y/z", create_local_file("/tmp/file_column_test/abc", "456"))
       assert_equal "456", store.read("x/y/z/abc")
     end
 
     store_test "test_upload_local_dir", store_type, build_opts do |store|
-      local_dir = "/tmp/file_column_test"
-      FileUtils.mkdir_p(local_dir)
-      FileUtils.touch(File.join(local_dir, "a"))
-      FileUtils.touch(File.join(local_dir, "b"))
-
-      store.upload_dir("x/y/z", local_dir)
+      create_local_file("/tmp/file_column_test/a")
+      create_local_file("/tmp/file_column_test/b")
+      store.upload_dir("x/y/z", "/tmp/file_column_test")
 
       assert store.exists?("x/y/z/a")
       assert store.exists?("x/y/z/b")
@@ -75,18 +90,11 @@ class AttachementStoreTest < Test::Unit::TestCase
 
     store_test "test_upload_local_dir_with_replace_files", store_type, build_opts do |store|
 
-      local_dir = "/tmp/file_column_test/old"
-      FileUtils.mkdir_p(local_dir)
-      FileUtils.touch(File.join(local_dir, "a"))
+      create_local_file("/tmp/file_column_test/old/a")
+      store.upload_dir("x/y/z", "/tmp/file_column_test/old")
 
-      store.upload_dir("x/y/z", local_dir)
-
-      local_dir = "/tmp/file_column_test/new"
-      FileUtils.mkdir_p(local_dir)
-      FileUtils.touch(File.join(local_dir, "b"))
-
-      store = FileColumn.store("foo")
-      store.upload_dir("x/y/z", local_dir)
+      create_local_file("/tmp/file_column_test/new/b")
+      store.upload_dir("x/y/z", "/tmp/file_column_test/new")
 
       assert store.exists?("x/y/z/b")
       assert !store.exists?("x/y/z/a")
