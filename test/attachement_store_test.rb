@@ -70,6 +70,19 @@ class AttachementStoreTest < Test::Unit::TestCase
       assert !store_b.exists?("x/y/z/abc")
     end
 
+    store_test "test_delete_files_under_a_path", store_type, build_opts do |store|
+      store.upload("x/y/z", create_local_file("/tmp/file_column_test/a"))
+      store.upload("x/y/z/k", create_local_file("/tmp/file_column_test/b"))
+      store.upload("x/y/s", create_local_file("/tmp/file_column_test/c"))
+
+
+      store.delete("x/y/z")
+      assert !store.exists?("x/y/z/a")
+      assert !store.exists?("x/y/z/k/b")
+      assert store.exists?("x/y/s/c")
+    end
+
+
     store_test "test_upload_with_same_name_replace_file", store_type, build_opts do |store|
       store.upload("x/y/z", create_local_file("/tmp/file_column_test/abc", "123"))
       assert_equal "123", store.read("x/y/z/abc")

@@ -42,6 +42,10 @@ module FileColumn
           File.join("s3:#{@bucket.name}://", *relative_paths)
         end
 
+        def delete(path)
+          @bucket.objects.with_prefix(s3_path(path)).delete_all
+        end
+
         def clear
           if @path_prefix.blank?
             @bucket.clear
@@ -91,8 +95,12 @@ module FileColumn
         File.join(@dir, @path_prefix, *relative_paths)
       end
 
-      def exists?(file_path)
-        File.exists?(absolute_path(file_path))
+      def exists?(path)
+        File.exists?(absolute_path(path))
+      end
+
+      def delete(path)
+        FileUtils.rm_rf(absolute_path(path))
       end
 
       def clear

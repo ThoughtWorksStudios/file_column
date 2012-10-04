@@ -403,7 +403,7 @@ module FileColumn # :nodoc:
     end
 
     def delete_files
-      store.clear
+      store.delete(relative_path_prefix)
     end
 
     private
