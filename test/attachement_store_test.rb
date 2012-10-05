@@ -5,21 +5,28 @@ class AttachementStoreTest < Test::Unit::TestCase
   extend Test::Unit::Assertions
 
   ROOT_DIR = File.dirname(__FILE__)+"/public/entry"
-  STORE_BUILD_OPTS = [[:filesystem, {:root_path => ROOT_DIR } ]]
-
-  if !ENV["S3_ACCESS_KEY_ID"].blank?
-    STORE_BUILD_OPTS << [:s3, {
-                           :access_key_id => ENV["S3_ACCESS_KEY_ID"],
-                           :secret_access_key => ENV["S3_SECRET_ACCESS_KEY"],
-                           :bucket_name => ENV["S3_BUCKET_NAME"]}]
-  end
+  STORE_BUILD_OPTS = {
+    :filesystem => {:root_path => ROOT_DIR },
+    :s3 => {
+      :access_key_id => ENV["S3_ACCESS_KEY_ID"],
+      :secret_access_key => ENV["S3_SECRET_ACCESS_KEY"],
+      :bucket_name => ENV["S3_BUCKET_NAME"]}}
 
   def teardown
     FileUtils.rm_rf("/tmp/file_column_test")
   end
 
+  def self.storage_configured?(store_type)
+    return !ENV["S3_ACCESS_KEY_ID"].blank? if store_type == :s3
+    true
+  end
+
   def self.store_test(test_name, store_type, build_opts, &block)
     define_method(test_name + "_for_#{store_type}_store") do
+      if !self.class.storage_configured?(store_type)
+        puts "Warning #{store_type} storage is not configured, test will be ignored"
+        return
+      end
       FileColumn.config_store(store_type, build_opts)
       store = FileColumn.store("foo")
       begin
@@ -32,7 +39,6 @@ class AttachementStoreTest < Test::Unit::TestCase
 
   def self.create_local_file(path, content="abc")
     FileUtils.mkdir_p(File.dirname(path))
-
     File.open(path, "w+") { |f| f << content }
     path
   end
@@ -115,9 +121,9 @@ class AttachementStoreTest < Test::Unit::TestCase
   end
 
 
-  if STORE_BUILD_OPTS[1]
+  if storage_configured?(:s3)
     def test_generate_signed_url_for_s3_store
-      FileColumn.config_store(*STORE_BUILD_OPTS[1])
+      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3])
       self.class.create_local_file("/tmp/file_column_test/a.jpg")
 
       store = FileColumn.store("foo")
@@ -129,14 +135,13 @@ class AttachementStoreTest < Test::Unit::TestCase
     end
 
     def test_use_s3_bucket_storage_with_namespace
-      FileColumn.config_store(:s3, STORE_BUILD_OPTS[1].last.merge(:namespace => 'app_namespace'))
+      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3].merge(:namespace => 'app_namespace'))
       local_file = self.class.create_local_file("/tmp/file_column_test/a.jpg")
       store = FileColumn.store("foo")
 
       store.upload("x/y/z", local_file)
 
       url = URI.parse(store.url_for("x/y/z/a.jpg"))
-      puts "[DEBUG]url => #{url.inspect}"
       assert url.path.include?("/app_namespace/foo/x/y/z/a.jpg")
     end
   end
