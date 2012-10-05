@@ -12,6 +12,7 @@ module FileColumn
           @path_prefix = path_prefix
           @url_expires = options[:url_expires] || HALF_AN_HOUR
           @bucket = s3.buckets[options[:bucket_name]]
+          @namespace = options[:namespace]
         end
 
         def upload(path, local_file)
@@ -47,10 +48,10 @@ module FileColumn
         end
 
         def clear
-          if @path_prefix.blank?
+          if s3_path.blank?
             @bucket.clear
           else
-            @bucket.objects.with_prefix(@path_prefix).delete_all
+            @bucket.objects.with_prefix(s3_path).delete_all
           end
         end
 
@@ -60,7 +61,7 @@ module FileColumn
         end
 
         def s3_path(*paths)
-          File.join(@path_prefix, *paths)
+          File.join(*([@namespace, @path_prefix, *paths].compact))
         end
       end
     rescue LoadError => e

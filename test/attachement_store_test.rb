@@ -118,16 +118,26 @@ class AttachementStoreTest < Test::Unit::TestCase
   if STORE_BUILD_OPTS[1]
     def test_generate_signed_url_for_s3_store
       FileColumn.config_store(*STORE_BUILD_OPTS[1])
-      local_dir = "/tmp/file_column_test"
-      FileUtils.mkdir_p(local_dir)
-      FileUtils.touch(File.join(local_dir, "a.jpg"))
+      self.class.create_local_file("/tmp/file_column_test/a.jpg")
 
       store = FileColumn.store("foo")
-      store.upload_dir("x/y/z", local_dir)
+      store.upload_dir("x/y/z", "tmp/file_column_test")
       url = URI.parse(store.url_for("x/y/z/a.jpg"))
       assert url.path.include?("/foo/x/y/z/a.jpg")
       assert url.query.include?("Signature")
       assert url.query.include?("Expires")
+    end
+
+    def test_use_s3_bucket_storage_with_namespace
+      FileColumn.config_store(:s3, STORE_BUILD_OPTS[1].last.merge(:namespace => 'app_namespace'))
+      local_file = self.class.create_local_file("/tmp/file_column_test/a.jpg")
+      store = FileColumn.store("foo")
+
+      store.upload("x/y/z", local_file)
+
+      url = URI.parse(store.url_for("x/y/z/a.jpg"))
+      puts "[DEBUG]url => #{url.inspect}"
+      assert url.path.include?("/app_namespace/foo/x/y/z/a.jpg")
     end
   end
 end
