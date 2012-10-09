@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require File.dirname(__FILE__) + '/abstract_unit'
 
 require File.dirname(__FILE__) + '/fixtures/entry'
@@ -39,7 +40,9 @@ class FileColumnTest < Test::Unit::TestCase
     assert_equal "__foo", FileColumn::sanitize_filename('`*foo')
     assert_equal "foo.txt", FileColumn::sanitize_filename('c:\temp\foo.txt')
     assert_equal "_.", FileColumn::sanitize_filename(".")
+    assert_equal "a_b.jpg", FileColumn::sanitize_filename("a+b.jpg")
   end
+
 
   def test_default_options
     e = Entry.new

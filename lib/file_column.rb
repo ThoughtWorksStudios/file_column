@@ -743,7 +743,7 @@ module FileColumn # :nodoc:
 
   def self.sanitize_filename(filename)
     filename = File.basename(filename.gsub("\\", "/")) # work-around for IE
-    filename.gsub!(/[^a-zA-Z0-9\.\-\+_]/,"_")
+    filename.gsub!(/[^\w0-9\.\-_]/,"_")
     filename = "_#{filename}" if filename =~ /^\.+$/
     filename = "unnamed" if filename.size == 0
     filename
