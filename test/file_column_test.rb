@@ -589,7 +589,7 @@ class FileColumnTest < Test::Unit::TestCase
   def test_copy_file_to_local_dir
     e = Entry.new(:image => upload(f("skanthak.png")))
     assert e.save
-    e.image_copy_to('/tmp/file_column_test/copy_dir')
+    e.image_copy_to('/tmp/file_column_test/copy_dir/skanthak.png')
     assert File.exist?('/tmp/file_column_test/copy_dir/skanthak.png')
   end
 end
