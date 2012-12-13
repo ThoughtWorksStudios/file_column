@@ -16,7 +16,8 @@ module FileColumn
         end
 
         def upload(path, local_file)
-          @bucket.objects.create(s3_path(path, File.basename(local_file)), File.read(local_file))
+          s3_path = s3_path(path, File.basename(local_file))
+          @bucket.objects.create(s3_path, Pathname.new(local_file))
         end
 
         def upload_dir(path, local_dir)
@@ -26,6 +27,15 @@ module FileColumn
           end
         end
 
+        def copy(path, to_local_path)
+          File.open(to_local_path, 'w') do |f|
+            object(path).read do |c|
+              f.write(c)
+            end
+          end
+        end
+
+        # should never use this in production code, it is only for test
         def read(path)
           object(path).read
         end
@@ -73,6 +83,10 @@ module FileColumn
         @dir = options[:root_path] || raise('Must define root path for file system store')
         @path_prefix = path_prefix
         FileUtils.mkdir_p File.join(@dir, @path_prefix)
+      end
+
+      def copy(path, to_local_path)
+        FileUtils.cp(absolute_path(path), to_local_path)
       end
 
       def read(path)

@@ -727,6 +727,16 @@ module FileColumn # :nodoc:
         url << relative_path
       end
 
+      define_method "#{attr}_copy_to" do |local_dir, *args|
+        state = send(state_method)
+        relative_path = state.relative_path(*args)
+        return nil unless relative_path
+        store = state.store
+        FileUtils.mkdir_p(local_dir)
+        to_local_path = File.join(local_dir, File.basename(relative_path))
+        store.copy(relative_path, to_local_path)
+      end
+
       private after_save_method, after_destroy_method
 
       FileColumn::MagickExtension::file_column(self, attr, my_options) if options[:magick]

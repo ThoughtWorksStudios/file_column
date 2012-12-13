@@ -118,6 +118,14 @@ class AttachementStoreTest < Test::Unit::TestCase
       assert store.exists?("x/y/z/b")
       assert !store.exists?("x/y/z/a")
     end
+
+    store_test 'test_copy_file_to_local_path', store_type, build_opts do |store|
+      create_local_file("/tmp/file_column_test/old/a")
+      store.upload_dir("x/y/z", "/tmp/file_column_test/old")
+      FileUtils.mkdir_p('/tmp/file_column_test/new')
+      store.copy('x/y/z/a', '/tmp/file_column_test/new/a')
+      assert_equal 'abc', File.read('/tmp/file_column_test/new/a')
+    end
   end
 
 

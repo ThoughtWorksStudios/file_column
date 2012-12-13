@@ -585,6 +585,13 @@ class FileColumnTest < Test::Unit::TestCase
     e["id"] = nil
     assert_raise(RuntimeError) { e.image }
   end
+
+  def test_copy_file_to_local_dir
+    e = Entry.new(:image => upload(f("skanthak.png")))
+    assert e.save
+    e.image_copy_to('/tmp/file_column_test/copy_dir')
+    assert File.exist?('/tmp/file_column_test/copy_dir/skanthak.png')
+  end
 end
 
 # Tests for moving temp dir to permanent dir
@@ -692,5 +699,4 @@ class FileColumnDownloadUrlTest < Test::Unit::TestCase
   ensure
     FileColumn.config_store(:filesystem)
   end
-
 end
