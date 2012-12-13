@@ -152,5 +152,23 @@ class AttachementStoreTest < Test::Unit::TestCase
       url = URI.parse(store.url_for("x/y/z/a.jpg"))
       assert url.path.include?("/app_namespace/foo/x/y/z/a.jpg")
     end
+
+    def test_sets_content_type_on_uploaded_files
+      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3].merge(:namespace => 'app_namespace'))
+      local_file = self.class.create_local_file("/tmp/file_column_test/a.jpg")
+      store = FileColumn.store("foo")
+
+      store.upload("x/y/z", local_file)
+      assert_equal "image/jpeg", store.content_type("x/y/z/a.jpg")
+    end
+
+    def test_ignores_content_type_if_none_found
+      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3].merge(:namespace => 'app_namespace'))
+      local_file = self.class.create_local_file("/tmp/file_column_test/a")
+      store = FileColumn.store("foo")
+
+      store.upload("x/y/z", local_file)
+      assert_equal "", store.content_type("x/y/z/a")
+    end
   end
 end
