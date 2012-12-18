@@ -7,17 +7,14 @@ class AttachementStoreTest < Test::Unit::TestCase
   ROOT_DIR = File.dirname(__FILE__)+"/public/entry"
   STORE_BUILD_OPTS = {
     :filesystem => {:root_path => ROOT_DIR },
-    :s3 => {
-      :access_key_id => ENV["S3_ACCESS_KEY_ID"],
-      :secret_access_key => ENV["S3_SECRET_ACCESS_KEY"],
-      :bucket_name => ENV["S3_BUCKET_NAME"]}}
-
+    :s3 => {:bucket_name => ENV["S3_BUCKET_NAME"]}}
+  
   def teardown
     FileUtils.rm_rf("/tmp/file_column_test")
   end
 
   def self.storage_configured?(store_type)
-    return !ENV["S3_ACCESS_KEY_ID"].blank? if store_type == :s3
+    return !ENV["AWS_ACCESS_KEY_ID"].blank? if store_type == :s3
     true
   end
 

@@ -100,8 +100,7 @@ module FileColumn
         HALF_AN_HOUR = 30 * 60
 
         def initialize(path_prefix, options)
-          s3 = AWS::S3.new(:access_key_id => options[:access_key_id],
-                           :secret_access_key => options[:secret_access_key])
+          s3 = AWS::S3.new
           @path_prefix = path_prefix
           @url_expires = options[:url_expires] || HALF_AN_HOUR
           @bucket = s3.buckets[options[:bucket_name]]

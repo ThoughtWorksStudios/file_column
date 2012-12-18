@@ -7,8 +7,8 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'rails', '~>2.3.8'
   gem.add_development_dependency 'sqlite3'
-  gem.add_development_dependency 'rmagick'
-  gem.add_development_dependency 'aws-sdk'
+  # gem.add_development_dependency 'rmagick'
+  gem.add_development_dependency 'aws-sdk', '~>1.7.1'
 
   gem.homepage = %q{https://github.com/ThoughtWorksStudios/file_column}
   gem.require_paths = ["lib"]
