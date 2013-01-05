@@ -8,7 +8,7 @@ class AttachementStoreTest < Test::Unit::TestCase
   STORE_BUILD_OPTS = {
     :filesystem => {:root_path => ROOT_DIR },
     :s3 => {:bucket_name => ENV["S3_BUCKET_NAME"]}}
-  
+
   def teardown
     FileUtils.rm_rf("/tmp/file_column_test")
   end
@@ -149,6 +149,20 @@ class AttachementStoreTest < Test::Unit::TestCase
       url = URI.parse(store.url_for("x/y/z/a.jpg"))
       assert url.path.include?("/app_namespace/foo/x/y/z/a.jpg")
     end
+
+    def test_use_s3_storage_namespace_can_be_a_lazy_evaluate_block
+      ever_changing_app_namespace = 'foo'
+      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3].merge(:namespace => proc { ever_changing_app_namespace } ))
+
+      ever_changing_app_namespace = 'bar'
+
+      local_file = self.class.create_local_file("/tmp/file_column_test/a.jpg")
+      store = FileColumn.store("foo")
+      store.upload("x/y/z", local_file)
+      url = URI.parse(store.url_for("x/y/z/a.jpg"))
+      assert url.path.include?("/bar/foo/x/y/z/a.jpg")
+    end
+
 
     def test_sets_content_type_on_uploaded_files
       FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3].merge(:namespace => 'app_namespace'))

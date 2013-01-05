@@ -105,7 +105,7 @@ module FileColumn
           @bucket_name = options[:bucket_name]
           @path_prefix = path_prefix
           @url_expires = options[:url_expires] || HALF_AN_HOUR
-          @namespace = options[:namespace]
+          @namespace = Proc === options[:namespace] ? options[:namespace].call : options[:namespace]
         end
 
         def upload(path, local_file)
@@ -175,7 +175,7 @@ module FileColumn
         def bucket
           AWS::S3.new.buckets[bucket_name]
         end
-        
+
         def object(path)
           bucket.objects[s3_path(path)]
         end
