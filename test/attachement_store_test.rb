@@ -123,6 +123,14 @@ class AttachementStoreTest < Test::Unit::TestCase
       store.copy('x/y/z/a', '/tmp/file_column_test/new/a')
       assert_equal 'abc', File.read('/tmp/file_column_test/new/a')
     end
+
+    store_test 'test_should_not_create_local_file_if_the_file_does_not_exist_on_s3', store_type, build_opts do |store|
+      FileUtils.mkdir_p('/tmp/file_column_test')
+      assert_raise RuntimeError do
+        store.copy('xx', '/tmp/file_column_test/xx')
+      end
+      assert !File.exists?('/tmp/file_column_test/xx')
+    end
   end
 
 

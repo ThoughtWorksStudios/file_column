@@ -133,8 +133,10 @@ module FileColumn
         end
 
         def copy(path, to_local_path)
+          obj = object(path)
+          raise "File(#{path}) does not exist in the bucket #{@bucket.name}" unless obj.exists?
           File.open(to_local_path, 'w') do |f|
-            object(path).read do |c|
+            obj.read do |c|
               f.write(c)
             end
           end
@@ -192,6 +194,7 @@ module FileColumn
       end
 
       def copy(path, to_local_path)
+        raise "File(#{path}) does not exist" unless File.exists?(absolute_path(path))
         FileUtils.cp(absolute_path(path), to_local_path)
       end
 
