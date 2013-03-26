@@ -5,9 +5,12 @@ class AttachementStoreTest < Test::Unit::TestCase
   extend Test::Unit::Assertions
 
   ROOT_DIR = File.dirname(__FILE__)+"/public/entry"
-  STORE_BUILD_OPTS = {
-    :filesystem => {:root_path => ROOT_DIR },
-    :s3 => {:bucket_name => ENV["S3_BUCKET_NAME"]}}
+  S3_CONFIG = {:bucket_name => ENV["S3_BUCKET_NAME"]}
+  STORE_BUILD_OPTS = [
+                      [:filesystem, {:root_path => ROOT_DIR }],
+                      [:s3, S3_CONFIG],
+                      [:s3, {:bucket_name => lambda {|path_prefix| ENV["S3_BUCKET_NAME"]}}]
+                     ]
 
   def teardown
     FileUtils.rm_rf("/tmp/file_column_test")
@@ -136,7 +139,7 @@ class AttachementStoreTest < Test::Unit::TestCase
 
   if storage_configured?(:s3)
     def test_generate_signed_url_for_s3_store
-      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3])
+      FileColumn.config_store(:s3, S3_CONFIG)
       self.class.create_local_file("/tmp/file_column_test/a.jpg")
 
       store = FileColumn.store("foo")
@@ -148,7 +151,7 @@ class AttachementStoreTest < Test::Unit::TestCase
     end
 
     def test_use_s3_bucket_storage_with_namespace
-      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3].merge(:namespace => 'app_namespace'))
+      FileColumn.config_store(:s3, S3_CONFIG.merge(:namespace => 'app_namespace'))
       local_file = self.class.create_local_file("/tmp/file_column_test/a.jpg")
       store = FileColumn.store("foo")
 
@@ -160,7 +163,7 @@ class AttachementStoreTest < Test::Unit::TestCase
 
     def test_use_s3_storage_namespace_can_be_a_lazy_evaluate_block
       ever_changing_app_namespace = 'foo'
-      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3].merge(:namespace => proc { ever_changing_app_namespace } ))
+      FileColumn.config_store(:s3, S3_CONFIG.merge(:namespace => proc { ever_changing_app_namespace } ))
 
       ever_changing_app_namespace = 'bar'
 
@@ -173,7 +176,7 @@ class AttachementStoreTest < Test::Unit::TestCase
 
 
     def test_sets_content_type_on_uploaded_files
-      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3].merge(:namespace => 'app_namespace'))
+      FileColumn.config_store(:s3, S3_CONFIG.merge(:namespace => 'app_namespace'))
       local_file = self.class.create_local_file("/tmp/file_column_test/a.jpg")
       store = FileColumn.store("foo")
 
@@ -182,7 +185,7 @@ class AttachementStoreTest < Test::Unit::TestCase
     end
 
     def test_ignores_content_type_if_none_found
-      FileColumn.config_store(:s3, STORE_BUILD_OPTS[:s3].merge(:namespace => 'app_namespace'))
+      FileColumn.config_store(:s3, S3_CONFIG.merge(:namespace => 'app_namespace'))
       local_file = self.class.create_local_file("/tmp/file_column_test/a")
       store = FileColumn.store("foo")
 
