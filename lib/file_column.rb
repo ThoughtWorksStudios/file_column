@@ -1,7 +1,7 @@
-  require 'fileutils'
+require 'fileutils'
 require 'tempfile'
 require 'magick_file_column'
-require 'file_column/attachement_store'
+require 'storage'
 
 module FileColumn # :nodoc:
   def self.append_features(base)
@@ -19,12 +19,14 @@ module FileColumn # :nodoc:
   end
 
   def self.store(path_prefix, extra_opts={})
-    builder = @store_builder || AttachementStore::Builder.new(:filesystem)
-    builder.build(path_prefix, extra_opts)
+    builder = @store_builder || Storage::Builder.new(:filesystem)
+    @build_opts ||= {}
+    builder.build(path_prefix, @build_opts.merge(extra_opts))
   end
 
   def self.config_store(type, build_opts={})
-    @store_builder = AttachementStore::Builder.new(type, build_opts)
+    @build_opts = build_opts
+    @store_builder = Storage::Builder.new(type)
   end
 
   def self.init_options(defaults, model, attr)

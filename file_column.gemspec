@@ -5,6 +5,7 @@ Gem::Specification.new do |gem|
   gem.authors = ["Mingle SaaS team"]
   gem.email = %q{mingle.saas@thoughtworks.com}
 
+  gem.add_dependency 'mingle-storage', '~>0.0.1'
   gem.add_dependency 'rails', '~>2.3.8'
   gem.add_development_dependency 'sqlite3'
   gem.add_development_dependency 'rmagick'

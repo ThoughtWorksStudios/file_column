@@ -66,38 +66,38 @@ class Test::Unit::TestCase
 end
 
 # provid a dummy storage implementation for tests
-module FileColumn
-  module AttachementStore
-    class InMemoryWithUrlStore
-      def initialize(path_prefix, options)
-        @path_prefix = path_prefix
-        @storage = {}
-      end
-      def upload(path, file)
-        @storage[absolute_path(path) + "/" + File.basename(file)] = File.read(file)
-      end
 
-      def upload_dir(path, local_dir)
-        Dir[File.join(local_dir, "*")].each do |f|
-          upload(path, f)
-        end
-      end
+module Storage
+  class InMemoryWithUrlStore
+    def initialize(path_prefix, options)
+      @path_prefix = path_prefix
+      @storage = {}
+    end
+    def upload(path, file)
+      @storage[absolute_path(path) + "/" + File.basename(file)] = File.read(file)
+    end
 
-      def exists?(path)
-        File.key?(path)
+    def upload_dir(path, local_dir)
+      Dir[File.join(local_dir, "*")].each do |f|
+        upload(path, f)
       end
+    end
 
-      def url_for(path)
-        "store generated url for #{path}"
-      end
+    def exists?(path)
+      File.key?(path)
+    end
 
-      def absolute_path(path)
-        File.join(@path_prefix, path)
-      end
+    def url_for(path)
+      "store generated url for #{path}"
+    end
 
-      def clear
-        @storage = {}
-      end
+    def absolute_path(path)
+      File.join(@path_prefix, path)
+    end
+
+    def clear
+      @storage = {}
     end
   end
 end
+

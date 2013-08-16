@@ -1,5 +1,4 @@
 begin
-  require 'RMagick'
   require File.dirname(__FILE__) + '/abstract_unit'
   require File.dirname(__FILE__) + '/fixtures/entry'
 

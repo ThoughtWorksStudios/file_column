@@ -84,7 +84,8 @@ class UrlForFileColumnWithContextPathTest < Test::Unit::TestCase
   def test_with_image_tag
     e = Entry.new(:image => upload(f("skanthak.png")))
     html = image_tag url_for_file_column(e, "image")
-    url = html.scan(/src=\"(.+)\?.*\"/).first.first
+    
+    url = html.scan(/src=\"(.+)\?*.*\"/).first.first
 
     assert_match IMAGE_URL, url
   end
