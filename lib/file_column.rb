@@ -752,7 +752,8 @@ module FileColumn # :nodoc:
 
   def self.sanitize_filename(filename)
     filename = File.basename(filename.gsub("\\", "/")) # work-around for IE
-    filename.gsub!(/[^\w0-9\.\-_]/,"_")
+    # cannot use \w or \W since Rails enables unicode $KCODE flag
+    filename.gsub!(/[^A-Za-z0-9_\-\.]/, "_")
     filename = "_#{filename}" if filename =~ /^\.+$/
     filename = "unnamed" if filename.size == 0
     filename
