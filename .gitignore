@@ -3,3 +3,6 @@
 s3_env
 test/*.sqlite
 pkg/
+/Gemfile.lock
+/debug.log
+/file_column_test.sqlite
