@@ -67,37 +67,36 @@ end
 
 # provid a dummy storage implementation for tests
 
-module Storage
-  class InMemoryWithUrlStore
-    def initialize(path_prefix, options)
-      @path_prefix = path_prefix
-      @storage = {}
-    end
-    def upload(path, file)
-      @storage[absolute_path(path) + "/" + File.basename(file)] = File.read(file)
-    end
+class InMemoryWithUrlStorageStore
+  def initialize(path_prefix, options)
+    @path_prefix = path_prefix
+    @storage = {}
+  end
+  def upload(path, file)
+    @storage[absolute_path(path) + "/" + File.basename(file)] = File.read(file)
+  end
 
-    def upload_dir(path, local_dir)
-      Dir[File.join(local_dir, "*")].each do |f|
-        upload(path, f)
-      end
+  def upload_dir(path, local_dir)
+    Dir[File.join(local_dir, "*")].each do |f|
+      upload(path, f)
     end
+  end
 
-    def exists?(path)
-      File.key?(path)
-    end
+  def exists?(path)
+    File.key?(path)
+  end
 
-    def url_for(path)
-      "store generated url for #{path}"
-    end
+  def url_for(path)
+    "store generated url for #{path}"
+  end
 
-    def absolute_path(path)
-      File.join(@path_prefix, path)
-    end
+  def absolute_path(path)
+    File.join(@path_prefix, path)
+  end
 
-    def clear
-      @storage = {}
-    end
+  def clear
+    @storage = {}
   end
 end
 
+Storage.add_store_class(:in_memory_with_url, InMemoryWithUrlStorageStore)

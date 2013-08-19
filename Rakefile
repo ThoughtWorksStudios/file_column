@@ -1,4 +1,4 @@
-require 'bundler'  
+require 'bundler'
 Bundler::GemHelper.install_tasks
 
 task :default => [:test]
@@ -33,7 +33,6 @@ end
 
 desc "Run all tests"
 task :test do
-  sh "cd test; ruby attachement_store_test.rb"
   sh "cd test; ruby file_column_test.rb"
   sh "cd test; ruby file_column_helper_test.rb"
   sh "cd test; ruby magick_test.rb"
