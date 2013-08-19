@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    file_column_with_s3 (0.1.1)
+    file_column_with_s3 (0.1.2)
       mingle-storage (~> 0.0.1)
       rails (~> 2.3.8)
 
@@ -23,8 +23,8 @@ GEM
       nokogiri (< 1.6.0)
       uuidtools (~> 2.1)
     json (1.8.0)
-    mingle-storage (0.0.3)
-      aws-sdk (~> 1.11.3)
+    mingle-storage (0.0.4)
+      aws-sdk
     nokogiri (1.5.10)
     rack (1.1.6)
     rails (2.3.18)

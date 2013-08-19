@@ -16,7 +16,6 @@ $: << "../lib"
 require 'file_column'
 require 'file_column_helper'
 require 'file_compat'
-require 'validations'
 require 'test_case'
 
 # do not use the file executable normally in our tests as

@@ -9,6 +9,7 @@ module ActiveRecord # :nodoc:
   class Base # :nodoc:
     # make file_column method available in all active record decendants
     include FileColumn
+    include FileColumn::Validations
   end
 end
 

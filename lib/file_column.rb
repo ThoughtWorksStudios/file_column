@@ -2,6 +2,7 @@ require 'fileutils'
 require 'tempfile'
 require 'magick_file_column'
 require 'storage'
+require 'file_column/validations'
 
 module FileColumn # :nodoc:
   def self.append_features(base)
