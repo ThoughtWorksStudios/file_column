@@ -739,6 +739,14 @@ module FileColumn # :nodoc:
         store.copy(relative_path, local_path)
       end
 
+      define_method "#{attr}_exists?" do
+        state = send(state_method)
+        relative_path = state.relative_path
+        return false unless relative_path
+        store = state.store
+        store.exists?(relative_path)
+      end
+
       private after_save_method, after_destroy_method
 
       FileColumn::MagickExtension::file_column(self, attr, my_options) if options[:magick]
