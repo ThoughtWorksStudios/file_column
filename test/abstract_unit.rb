@@ -85,7 +85,7 @@ class InMemoryWithUrlStorageStore
     File.key?(path)
   end
 
-  def url_for(path)
+  def url_for(path, options={})
     "store generated url for #{path}"
   end
 

@@ -53,7 +53,7 @@ module FileColumnHelper
   #
   # If there is currently no uploaded file stored in the object's column this method will
   # return +nil+.
-  def url_for_file_column(object, method, options=nil)
+  def url_for_file_column(object, method, options=nil, store_url_for_options={})
     case object
     when String, Symbol
       object = instance_variable_get("@#{object.to_s}")
@@ -73,7 +73,7 @@ module FileColumnHelper
     end
 
     context_path = absolute ? ActionController::Base.relative_url_root.to_s : nil
-    object.send("#{method}_download_url", context_path, subdir)
+    object.send("#{method}_download_url", context_path, subdir, store_url_for_options)
 
   end
 
@@ -127,7 +127,7 @@ module FileColumnHelper
   # absolute URL automatically.
   # If there is currently no image uploaded, or there is a problem while loading
   # the image this method will return +nil+.
-  def url_for_image_column(object, method, options=nil)
+  def url_for_image_column(object, method, options=nil, store_url_for_options={})
     case object
     when String, Symbol
       object = instance_variable_get("@#{object.to_s}")
@@ -139,7 +139,7 @@ module FileColumnHelper
     if subdir.nil?
       nil
     else
-      url_for_file_column(object, method, subdir)
+      url_for_file_column(object, method, subdir, store_url_for_options)
     end
   end
 end
