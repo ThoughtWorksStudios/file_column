@@ -695,7 +695,7 @@ class FileColumnDownloadUrlTest < Test::Unit::TestCase
     FileColumn.config_store(:in_memory_with_url)
     e = Entry.new(:image => upload(f("skanthak.png")))
     assert e.save
-    assert_equal "store generated url for #{e.image_relative_path}", e.image_download_url(nil)
+    assert_equal "store generated url for #{e.image_relative_path} with options {}", e.image_download_url(nil)
   ensure
     FileColumn.config_store(:filesystem)
   end

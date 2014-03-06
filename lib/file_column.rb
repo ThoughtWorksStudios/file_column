@@ -718,6 +718,7 @@ module FileColumn # :nodoc:
       define_method "#{attr}_download_url" do |context_path, *args|
         subpath, store_url_for_option = args
         state = send(state_method)
+        store_url_for_option ||= {}
         relative_path = state.relative_path(subpath)
 
         return nil unless relative_path

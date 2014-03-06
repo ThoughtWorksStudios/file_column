@@ -14,10 +14,20 @@ class UrlForFileColumnTest < Test::Unit::TestCase
     FileColumn.config_store(:in_memory_with_url)
     @e = Entry.new(:image => upload(f("skanthak.png")))
     assert @e.save
-    assert_equal "store generated url for #{@e.image_relative_path}", url_for_file_column("e", "image")
+    assert_equal "store generated url for #{@e.image_relative_path} with options {}", url_for_file_column("e", "image")
   ensure
     FileColumn.config_store(:filesystem)
   end
+
+  def test_should_should_pass_through_store_url_for_options
+    FileColumn.config_store(:in_memory_with_url)
+    @e = Entry.new(:image => upload(f("skanthak.png")))
+    assert @e.save
+    assert_equal "store generated url for #{@e.image_relative_path} with options {:expires_in=>200}", url_for_file_column("e", "image", nil, {:expires_in => 200 })
+  ensure
+    FileColumn.config_store(:filesystem)
+  end
+
 
   def test_url_for_file_column_with_temp_entry
     @e = Entry.new(:image => upload(f("skanthak.png")))

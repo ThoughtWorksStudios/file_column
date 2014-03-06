@@ -86,7 +86,7 @@ class InMemoryWithUrlStorageStore
   end
 
   def url_for(path, options={})
-    "store generated url for #{path}"
+    "store generated url for #{path} with options #{options.inspect}"
   end
 
   def absolute_path(path)
