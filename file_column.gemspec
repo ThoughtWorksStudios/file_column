@@ -1,15 +1,16 @@
 Gem::Specification.new do |gem|
   gem.name = "file_column_with_s3"
-  gem.version = "0.1.6"
+  gem.version = "0.1.7"
 
   gem.authors = ["Mingle SaaS team"]
   gem.email = %q{mingle.saas@thoughtworks.com}
 
-  gem.add_dependency 'mingle-storage', '~>0.0.8'
+  gem.add_dependency 'mingle-storage', '~>0.0.10'
   gem.add_dependency 'rails', '~>2.3.8'
   gem.add_development_dependency 'sqlite3'
   gem.add_development_dependency 'rmagick'
   gem.add_development_dependency 'aws-sdk'
+  gem.add_development_dependency "nokogiri", "1.5.11"
 
 
   gem.homepage = %q{https://github.com/ThoughtWorksStudios/file_column}

@@ -365,7 +365,7 @@ module FileColumn # :nodoc:
     end
 
     def store
-      FileColumn.store(store_dir, {:root_path => options[:root_path] }) #root_path is only need for file system store, but pass it in will not hurt for other store
+      FileColumn.store(store_dir, options)
     end
 
     def absolute_path(subdir=nil)
