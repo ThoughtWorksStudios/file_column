@@ -724,7 +724,11 @@ module FileColumn # :nodoc:
         return nil unless relative_path
 
         store = state.store
-        return store.url_for(relative_path, store_url_for_option) if store && store.respond_to?(:url_for)
+        if my_options[:public]
+          return store.public_url(relative_path, store_url_for_option) if store && store.respond_to?(:public_url)
+        else
+          return store.url_for(relative_path, store_url_for_option) if store && store.respond_to?(:url_for)
+        end
 
         url = ""
         url << context_path if context_path
