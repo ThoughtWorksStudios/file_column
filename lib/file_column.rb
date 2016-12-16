@@ -609,7 +609,7 @@ module FileColumn # :nodoc:
 
     # default options. You can override these with +file_column+'s +options+ parameter
     DEFAULT_OPTIONS = {
-      :root_path => File.join(RAILS_ROOT, "public"),
+      :root_path => File.join(Rails.root.to_s, "public"),
       :web_root => "",
       :mime_extensions => MIME_EXTENSIONS,
       :extensions => EXTENSIONS,

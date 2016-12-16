@@ -13,6 +13,19 @@ RAILS_ENV = ""
 
 $: << "../lib"
 
+class Rails
+  @root = File.dirname(__FILE__)
+
+  class << self
+    attr_accessor :root
+  end
+
+  class VERSION
+    MAJOR = (ENV['RAILS_VERSION'] || '2').to_i
+  end
+end
+
+
 require 'file_column'
 require 'file_column_helper'
 require 'file_compat'
