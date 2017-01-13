@@ -6,7 +6,6 @@ class UrlForFileColumnTest < Test::Unit::TestCase
 
   def setup
     Entry.file_column :image
-    ActionController::Base.relative_url_root = nil
     @request = RequestMock.new
   end
 
@@ -112,7 +111,6 @@ class UrlForFileColumnWithContextPathTest < Test::Unit::TestCase
   def test_relative_url_root_not_modified
     e = Entry.new(:image => upload(f("skanthak.png")))
     url_for_file_column(e, "image", :absolute => true)
-
-    assert_equal "/foo/bar", ActionController::Base.relative_url_root
+    assert_equal "/foo/bar", get_relative_url_for_rails(Rails::VERSION::MAJOR)
   end
 end
