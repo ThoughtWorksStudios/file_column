@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email = %q{mingle.saas@thoughtworks.com}
 
   gem.add_dependency 'mingle-storage', '~> 0.0.11'
-  gem.add_dependency 'rails', '<= 3.2.13'
+  gem.add_dependency 'rails', '<= 3.1.0'
   gem.add_development_dependency 'sqlite3'
   gem.add_development_dependency 'rmagick'
   gem.add_development_dependency 'aws-sdk'
