@@ -13,6 +13,37 @@ RAILS_ENV = ""
 
 $: << "../lib"
 
+module Rails
+  @root = File.dirname(__FILE__)
+
+  class << self
+    attr_accessor :root
+  end
+
+  def self.application
+    Application.new
+  end
+
+  class Application
+    def config
+      Configuration.new
+    end
+
+    class Configuration
+      def action_controller
+        action_controller = ActiveSupport::OrderedOptions.new
+        action_controller.relative_url_root = '/foo/bar'
+        return action_controller
+      end
+    end
+  end
+
+  class VERSION
+    MAJOR = (ENV['RAILS_VERSION'] || '3').to_i
+  end
+end
+
+
 require 'file_column'
 require 'file_column_helper'
 require 'file_compat'

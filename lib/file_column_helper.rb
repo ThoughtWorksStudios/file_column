@@ -72,7 +72,7 @@ module FileColumnHelper
       end
     end
 
-    context_path = absolute ? ActionController::Base.relative_url_root.to_s : nil
+    context_path = absolute ? get_relative_url_for_rails(Rails::VERSION::MAJOR) : nil
     object.send("#{method}_download_url", context_path, subdir, store_url_for_options)
 
   end
@@ -142,4 +142,10 @@ module FileColumnHelper
       url_for_file_column(object, method, subdir, store_url_for_options)
     end
   end
+
+  private
+  def get_relative_url_for_rails(rails_version)
+    (rails_version == 2 ? ActionController::Base.relative_url_root : Rails.application.config.action_controller.relative_url_root).to_s
+  end
+
 end
