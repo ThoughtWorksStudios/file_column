@@ -1,5 +1,5 @@
-require File.dirname(__FILE__) + '/abstract_unit'
-require File.dirname(__FILE__) + '/fixtures/entry'
+require File.expand_path(File.dirname(__FILE__) + '/abstract_unit')
+require File.expand_path(File.dirname(__FILE__) + '/fixtures/entry')
 
 class UrlForFileColumnTest < Test::Unit::TestCase
   include FileColumnHelper
@@ -81,7 +81,6 @@ class UrlForFileColumnWithContextPathTest < Test::Unit::TestCase
 
     # mock up some request data structures for AssetTagHelper
     @request = RequestMock.new
-    ActionController::Base.relative_url_root = "/foo/bar"
     @controller = self
   end
 
@@ -89,11 +88,11 @@ class UrlForFileColumnWithContextPathTest < Test::Unit::TestCase
     @request
   end
 
-  IMAGE_URL = %r{^/foo/bar/entry/image/.+/skanthak.png$}
+  IMAGE_URL = %r{^/foo/bar/entry/image/.+/skanthak.png}
   def test_with_image_tag
     e = Entry.new(:image => upload(f("skanthak.png")))
-    html = image_tag url_for_file_column(e, "image")
 
+    html = image_tag url_for_file_column(e, "image")
     url = html.scan(/src=\"([^?]+)\?*.*\"/).first.first
 
     assert_match IMAGE_URL, url
@@ -112,5 +111,10 @@ class UrlForFileColumnWithContextPathTest < Test::Unit::TestCase
     e = Entry.new(:image => upload(f("skanthak.png")))
     url_for_file_column(e, "image", :absolute => true)
     assert_equal "/foo/bar", get_relative_url_for_rails(Rails::VERSION::MAJOR)
+  end
+
+  private
+  def config
+    OpenStruct.new(relative_url_root: '/foo/bar')
   end
 end

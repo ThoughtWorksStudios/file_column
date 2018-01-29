@@ -1,19 +1,16 @@
 class Entry < ActiveRecord::Base
-  attr_accessor :validation_should_fail
 
-  def validate
-    errors.add("image","some stupid error") if @validation_should_fail
-  end
-  
+  after_save :after_save_method
+
   def after_assign
     @after_assign_called = true
   end
-  
+
   def after_assign_called?
     @after_assign_called
   end
-  
-  def after_save
+
+  def after_save_method
     @after_save_called = true
   end
 

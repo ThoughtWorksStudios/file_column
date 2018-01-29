@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-require File.dirname(__FILE__) + '/abstract_unit'
-
-require File.dirname(__FILE__) + '/fixtures/entry'
+require File.expand_path(File.dirname(__FILE__) + '/abstract_unit')
+require File.expand_path(File.dirname(__FILE__) + '/fixtures/entry')
 
 class Movie < ActiveRecord::Base
 end
@@ -143,7 +142,7 @@ class FileColumnTest < Test::Unit::TestCase
 
     # run this test only if the machine we are running on
     # has the file utility installed
-    if File.executable?(FILE_UTILITY)  && !RUBY_PLATFORM.include?("darwin")
+    if File.executable?(FILE_UTILITY)
       e = Entry.new(:image => uploaded_file(file_path("skanthak.png"), "", "skanthak.jpg"))
 
       assert_equal "skanthak.png", File.basename(e.image)
@@ -256,11 +255,14 @@ class FileColumnTest < Test::Unit::TestCase
   end
 
   def test_keep_tmp_image
-    e = Entry.new("image" => uploaded_file(file_path("kerb.jpg"), "image/jpeg", "kerb.jpg"))
-    e.validation_should_fail = true
-    assert !e.save, "e should not save due to validation errors"
-    assert File.exists?(local_path = e.image)
-    image_temp = e.image_temp
+    image_temp = ''
+    local_path = ''
+    with_failing_validation(Entry, :image) do
+      e = Entry.new("image" => uploaded_file(file_path("kerb.jpg"), "image/jpeg", "kerb.jpg"))
+      assert !e.save, "e should not save due to validation errors"
+      assert File.exists?(local_path = e.image)
+      image_temp = e.image_temp
+    end
     e = Entry.new("image_temp" => image_temp)
     assert_equal local_path, e.image
     assert e.save
@@ -271,11 +273,13 @@ class FileColumnTest < Test::Unit::TestCase
     e = Entry.new("image" =>uploaded_file(file_path("kerb.jpg"), "image/jpeg", "kerb.jpg"))
     assert e.save
     assert File.exists?(local_path = e.image)
-    e = Entry.find(e.id)
-    e.image = uploaded_file(file_path("skanthak.png"), "image/png", "skanthak.png")
-    e.validation_should_fail = true
-    assert !e.save
-    temp_path = e.image_temp
+    temp_path = ''
+    with_failing_validation(Entry, :image) do
+      e = Entry.find(e.id)
+      e.image = uploaded_file(file_path("skanthak.png"), "image/png", "skanthak.png")
+      assert !e.save
+      temp_path = e.image_temp
+    end
     e = Entry.find(e.id)
     e.image_temp = temp_path
     assert e.save
@@ -293,11 +297,14 @@ class FileColumnTest < Test::Unit::TestCase
   end
 
   def do_test_replace_tmp_image(order)
-    e = Entry.new("image" => uploaded_file(file_path("kerb.jpg"), "image/jpeg", "kerb.jpg"))
-    e.validation_should_fail = true
-    assert !e.save
-    image_temp = e.image_temp
-    temp_path = e.image
+    image_temp = ''
+    temp_path = ''
+    with_failing_validation(Entry, :image) do
+      e = Entry.new("image" => uploaded_file(file_path("kerb.jpg"), "image/jpeg", "kerb.jpg"))
+      assert !e.save
+      image_temp = e.image_temp
+      temp_path = e.image
+    end
     new_img = uploaded_file(file_path("skanthak.png"), "image/png", "skanthak.png")
     e = Entry.new
     for method in order
@@ -515,7 +522,8 @@ class FileColumnTest < Test::Unit::TestCase
 
     e.image = upload(f("skanthak.png"))
     assert !e.save
-    assert e.errors.invalid?("image")
+    assert e.invalid? :image
+    assert_equal ['is smaller than the allowed size range.'], e.errors.messages[:image]
   end
 
   def test_validates_file_format_simple
@@ -529,8 +537,8 @@ class FileColumnTest < Test::Unit::TestCase
 
     e.image = upload(f("mysql.sql"))
     assert !e.save
-    assert e.errors.invalid?("image")
-
+    assert  e.invalid? :image
+    assert_equal ['is not a valid format.'], e.errors.messages[:image]
   end
 
   def test_validates_image_size
@@ -541,7 +549,8 @@ class FileColumnTest < Test::Unit::TestCase
 
     e = Entry.new(:image => upload(f("skanthak.png")))
     assert !e.save
-    assert e.errors.invalid?("image")
+    assert e.invalid? :image
+    assert_equal ['is too small, must be at least 640x480'], e.errors.messages[:image]
   end
 
   def do_permission_test(uploaded_file, permissions=0641)

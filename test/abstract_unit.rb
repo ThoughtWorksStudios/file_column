@@ -2,6 +2,7 @@ require 'thread'
 require 'test/unit'
 require 'rubygems'
 require 'active_support'
+require 'active_support/core_ext/numeric/bytes' # is not loaded when active_support loads.
 require 'active_record'
 require 'action_view'
 require 'action_controller'
@@ -44,10 +45,10 @@ module Rails
 end
 
 
-require 'file_column'
-require 'file_column_helper'
-require 'file_compat'
-require 'test_case'
+require File.expand_path(File.dirname(__FILE__) + '/../lib/file_column')
+require File.expand_path(File.dirname(__FILE__) + '/../lib/file_column_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../lib/file_compat')
+require File.expand_path(File.dirname(__FILE__) + '/../lib/test_case')
 
 # do not use the file executable normally in our tests as
 # it may not be present on the machine we are running on
@@ -74,6 +75,13 @@ class Test::Unit::TestCase
     assert_equal normalize_path(expected_path), normalize_path(path)
   end
 
+  def with_failing_validation(klass, column, &block)
+    klass.validates_each(column) do |record, attr, value|
+      record.errors.add(column, 'some stupid error')
+    end
+    yield
+    klass.clear_validators!
+  end
 
   private
 
@@ -82,10 +90,8 @@ class Test::Unit::TestCase
   end
 
   def clear_validations
-    [:validate, :validate_on_create, :validate_on_update].each do |attr|
-        Entry.write_inheritable_attribute attr, []
-        Movie.write_inheritable_attribute attr, []
-      end
+    Entry.clear_validators!
+    Movie.clear_validators!
   end
 
   def file_path(filename)

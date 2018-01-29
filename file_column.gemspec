@@ -5,12 +5,11 @@ Gem::Specification.new do |gem|
   gem.authors = ["Mingle SaaS team"]
   gem.email = %q{mingle.saas@thoughtworks.com}
 
-  gem.add_dependency 'mingle-storage', '~> 0.0.11'
-  gem.add_dependency 'rails', '<= 3.0.0'
-  gem.add_development_dependency 'sqlite3'
-  gem.add_development_dependency 'rmagick'
-  gem.add_development_dependency 'aws-sdk'
-  gem.add_development_dependency "nokogiri", "1.5.11"
+  gem.add_dependency 'mingle-storage'
+  gem.add_development_dependency 'jdbc-sqlite3'
+  gem.add_development_dependency 'mini_magick'
+  gem.add_development_dependency 'aws-sdk-s3'
+  gem.add_development_dependency "nokogiri"
   gem.homepage = %q{https://github.com/ThoughtWorksStudios/file_column}
   gem.require_paths = ["lib"]
   gem.summary = "File attachment library for ruby"

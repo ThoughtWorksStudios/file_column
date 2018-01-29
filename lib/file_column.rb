@@ -1,8 +1,8 @@
 require 'fileutils'
 require 'tempfile'
-require 'magick_file_column'
+# require 'magick_file_column'
 require 'storage'
-require 'file_column/validations'
+require File.dirname(__FILE__) + '/file_column/validations'
 
 module FileColumn # :nodoc:
   def self.append_features(base)
@@ -337,7 +337,7 @@ module FileColumn # :nodoc:
     def get_content_type(fallback=nil)
       if options[:file_exec]
         begin
-          content_type = `#{options[:file_exec]} -bi "#{File.join(@dir,@filename)}"`.chomp
+          content_type = `#{options[:file_exec]} -b --mime "#{File.join(@dir,@filename)}"`.chomp
           content_type = fallback unless $?.success?
           content_type.gsub!(/;.+$/,"") if content_type
           content_type
