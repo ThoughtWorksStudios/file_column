@@ -14,7 +14,7 @@ module ActiveRecord # :nodoc:
 end
 
 module ActionView # :nodoc:
-  class Base # :nodoc:
+  module Helpers # :nodoc:
     include FileColumnHelper
   end
 end
