@@ -35,6 +35,4 @@ desc "Run all tests"
 task :test do
   sh "cd test; ruby file_column_test.rb"
   sh "cd test; ruby file_column_helper_test.rb"
-  sh "cd test; ruby magick_test.rb"
-  sh "cd test; ruby magick_view_only_test.rb"
 end
