@@ -541,19 +541,6 @@ class FileColumnTest < Test::Unit::TestCase
     assert_equal ['is not a valid format.'], e.errors.messages[:image]
   end
 
-  #Todo: Fix when addinng image size support
-  # def test_validates_image_size
-  #   Entry.validates_image_size :image, :min => "640x480"
-  #
-  #   e = Entry.new(:image => upload(f("kerb.jpg")))
-  #   assert e.save
-  #
-  #   e = Entry.new(:image => upload(f("skanthak.png")))
-  #   assert !e.save
-  #   assert e.invalid? :image
-  #   assert_equal ['is too small, must be at least 640x480'], e.errors.messages[:image]
-  # end
-
   def do_permission_test(uploaded_file, permissions=0641)
     Entry.file_column :image, :permissions => permissions
 

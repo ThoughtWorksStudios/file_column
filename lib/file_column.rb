@@ -1,6 +1,5 @@
 require 'fileutils'
 require 'tempfile'
-# require 'magick_file_column'
 require 'storage'
 require File.dirname(__FILE__) + '/file_column/validations'
 
@@ -499,12 +498,6 @@ module FileColumn # :nodoc:
   # As a convenience you can access files stored in sub-directories via the +subdir+
   # parameter if they have the same filename.
   #
-  # Suppose your uploaded file is named "vancouver.jpg" and you want to create a
-  # thumb-nail and store it in the "thumb" directory. If you call
-  # <tt>image("thumb")</tt>, you
-  # will receive an absolute path for the file "thumb/vancouver.jpg" in the same
-  # directory "vancouver.jpg" is stored. Look at the documentation of FileColumn::Magick
-  # for more examples and how to create these thumb-nails automatically.
   #
   # == File Extensions
   #
@@ -756,7 +749,6 @@ module FileColumn # :nodoc:
 
       private after_save_method, after_destroy_method
 
-      FileColumn::MagickExtension::file_column(self, attr, my_options) if options[:magick]
     end
 
   end

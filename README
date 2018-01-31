@@ -24,8 +24,8 @@ end
   uploaded file. Note that you need an Entry object in the instance variable @entry for this
   to work.
 
-* easy integration with RMagick to resize images and/or create thumb-nails.
-
+* Does not support RMagick based features anymore. Look for version 0.2.0 and below for the same. Images cannot be resized or
+checked for resolution.
 USAGE
 =====
 
